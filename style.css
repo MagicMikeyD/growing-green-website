@@ -1,0 +1,323 @@
+body {
+  font-family: 'Playfair Display SC', serif; /* Serif font */
+  background-color: #228B22; /* Uniform medium green background */
+  color: white;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background-image: url('farm-sunset.jpg'); /* Your image as backdrop */
+  background-size: cover; /* Full cover */
+  background-position: center; /* Centered */
+  padding: 200px 20px; /* Increased padding for taller header */
+  position: relative; /* For overlay */
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 100, 0, 0.5); /* Semi-transparent dark green overlay for text readability */
+  z-index: 1;
+}
+
+header h1, header p {
+  position: relative;
+  z-index: 2; /* Title/subheader on top of overlay */
+  margin: 0;
+}
+
+h1 {
+  font-size: 3em; /* Larger for impact */
+  margin-bottom: 10px;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1.2em; /* Placeholder—replace with img */
+}
+
+header p {
+  font-size: 1.2em;
+}
+
+.products-header,
+.features-header {
+  background-color: white; /* White background for contrast */
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.products-header h1,
+.features-header h1 {
+  font-size: 2.5em;
+  color: #228B22; /* Green text for title */
+}
+
+.products-panels {
+  display: flex;
+  justify-content: space-around; /* Even spacing */
+  flex-wrap: wrap; /* Wrap on smaller screens */
+  padding: 20px;
+}
+
+.panel {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px; /* Fixed width for consistency */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  color: black; /* Dark text inside panels */
+  text-align: center;
+}
+
+.panel-image {
+  height: 200px; /* Fixed height for image boxes */
+  background-color: white; /* White placeholder for images */
+  display: flex; /* Flex for centering */
+  align-items: center; /* Vertical center */
+  justify-content: center; /* Horizontal center */
+  overflow: hidden; /* Prevent overflow */
+  margin-bottom: 10px; /* Space below image */
+}
+
+.panel-image img {
+  max-width: 100%; /* Scale to fit panel */
+  max-height: 100%; /* Keep dominant without overflow */
+  object-fit: contain; /* Preserve aspect, no distortion */
+  display: block; /* Treat as block for better centering */
+  margin: 0 auto; /* Fallback horizontal centering */
+}
+
+.panel h2 {
+  font-size: 1.8em;
+  margin: 10px 0;
+  color: #228B22; /* Green headers to match row */
+}
+
+.panel p {
+  font-size: 1em;
+  margin: 10px 0;
+  color: black; /* Dark text for readability */
+  word-wrap: break-word; /* Fix text overflow/jumbling */
+}
+
+.download, .app-store, .google-play {
+  background-color: #006400; /* Dark green buttons */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 20px; /* Rounded for button feel */
+}
+
+.farmer-app-showcase,
+.market-app-showcase,
+.worker-app-showcase {
+  background-color: white; /* White background for the row */
+  padding: 40px 20px; /* Larger padding for emphasis */
+  margin: 20px 0;
+}
+
+.showcase-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px; /* Larger width for showcase */
+  margin: 0 auto;
+  color: black; /* Dark text for readability */
+}
+
+.showcase-container.reverse {
+  flex-direction: row-reverse; /* Reverse for text left, images right */
+}
+
+.showcase-images {
+  flex: 1;
+  position: relative; /* For overlapping images */
+  height: 400px; /* Fixed height for slideshow dominance */
+  overflow: hidden; /* Hide overflow */
+  margin: 0 60px 0 10px; /* Increased right margin for more space from text, small left margin */
+  padding: 10px; /* Small white margins */
+  background-color: white; /* Minimal white frame */
+  border-radius: 10px; /* Slight rounding */
+}
+
+.showcase-container.reverse .showcase-images {
+  margin: 0 10px 0 60px; /* Flip margins for reversed layout */
+}
+
+.showcase-images img {
+  position: absolute; /* Overlap for slideshow */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Fill with cropping for dominance */
+  opacity: 0; /* Hidden by default */
+  transition: opacity 1s ease-in-out; /* Slow fade */
+  animation: slideshow 15s infinite; /* 5s per image, total cycle 15s for 3 images */
+}
+
+.showcase-images img:nth-child(1) { animation-delay: 0s; }
+.showcase-images img:nth-child(2) { animation-delay: 5s; }
+.showcase-images img:nth-child(3) { animation-delay: 10s; }
+
+@keyframes slideshow {
+  0% { opacity: 0; }
+  6% { opacity: 1; } /* Fade in */
+  33% { opacity: 1; } /* Hold */
+  39% { opacity: 0; } /* Fade out */
+  100% { opacity: 0; }
+}
+
+.showcase-text {
+  flex: 1;
+  text-align: left; /* Left-align for readability */
+  margin: 0 10px; /* Equal margins for balance */
+}
+
+.showcase-text h2 {
+  font-size: 2em;
+  color: #228B22; /* Green header */
+  margin-bottom: 10px;
+}
+
+.showcase-text p {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+.showcase-text h3 {
+  font-size: 1.5em;
+  color: #228B22; /* Green subheaders */
+  margin: 20px 0 10px;
+}
+
+.showcase-text ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.section-divider {
+  border-bottom: 4px solid #006400; /* Robust dark green border */
+  margin: 20px 0;
+}
+
+.pricing-section {
+  background-color: white; /* White background for contrast */
+  padding: 40px 20px;
+  margin: 20px 0;
+  color: black; /* Dark text for readability */
+}
+
+.pricing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pricing-container h2 {
+  font-size: 2.5em;
+  color: #228B22; /* Green header */
+  margin-bottom: 20px;
+}
+
+.pricing-container p {
+  font-size: 1.2em;
+  margin-bottom: 30px;
+}
+
+.pricing-tiers {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.tier {
+  background-color: #f9f9f9; /* Light gray for tiers */
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.tier h3 {
+  font-size: 1.8em;
+  color: #228B22;
+  margin-bottom: 10px;
+}
+
+.tier .price {
+  font-size: 2em;
+  font-weight: bold;
+  color: #006400; /* Dark green for price */
+  margin-bottom: 10px;
+}
+
+.pricing-container h3 {
+  font-size: 1.8em;
+  color: #228B22;
+  margin: 30px 0 10px;
+  text-align: left;
+}
+
+footer {
+  background-color: #228B22; /* Uniform medium green footer */
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .products-panels {
+    flex-direction: column; /* Stack panels on mobile */
+    align-items: center;
+  }
+  
+  .panel {
+    width: 90%; /* Full width on small screens */
+  }
+  
+  header {
+    padding: 150px 20px; /* Slightly shorter on mobile for usability */
+  }
+
+  .showcase-container, .showcase-container.reverse {
+    flex-direction: column; /* Stack on mobile */
+  }
+
+  .showcase-images {
+    margin: 0 auto 20px auto !important; /* Center on mobile, override for reverse */
+    width: 90%; /* Full width minus small margins */
+  }
+
+  .showcase-text {
+    margin: 0 10px; /* Keep small margins on mobile */
+  }
+
+  .pricing-tiers {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tier {
+    width: 90%;
+  }
+
+  .pricing-container h3 {
+    text-align: center;
+  }
+}
