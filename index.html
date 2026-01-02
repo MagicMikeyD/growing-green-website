@@ -27,7 +27,7 @@
       </div>
       <h2>Farmer App</h2>
       <p>Farm management ecosystem For Farmers and Business owners.</p>
-      <button class="download">Download Now!</button>
+      <button class="download" id="install-button">Download Now!</button> <!-- Added ID for JS targeting -->
     </div>
     <div class="panel">
       <div class="panel-image">
@@ -166,5 +166,42 @@
     <p>© 2025 Mana Softworks LLC.</p>
     <p>Contact: Mikey.floyd@manasoftworks.com</p>
   </footer>
+
+  <script>
+    let deferredPrompt;
+    const installButton = document.getElementById('install-button');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      // Update UI to notify the user they can install the app
+      installButton.style.display = 'block';
+    });
+
+    installButton.addEventListener('click', (e) => {
+      if (deferredPrompt) {
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        // Fallback for non-supported browsers (e.g., iOS)
+        alert('To install the Farmer App, use your browser\'s Share menu and select "Add to Home Screen".');
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA installed successfully');
+    });
+  </script>
 </body>
 </html>
