@@ -301,7 +301,9 @@ footer {
 
   .showcase-images {
     margin: 0 auto 20px auto !important; /* Center on mobile, override for reverse */
-    width: 90%; /* Full width minus small margins */
+    width: 100%; /* Full width on mobile */
+    height: 400px; /* Increased height for fuller look on mobile */
+    padding: 0; /* Remove padding for edge-to-edge */
   }
 
   .showcase-text {
