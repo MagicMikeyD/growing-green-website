@@ -110,14 +110,17 @@ header p {
   word-wrap: break-word; /* Fix text overflow/jumbling */
 }
 
-.download, .app-store, .google-play {
-  background-color: #006400; /* Dark green buttons */
+.download {
+  display: inline-block;
+  background-color: #006400;
   color: white;
   border: none;
   padding: 10px 20px;
   margin: 5px;
   cursor: pointer;
-  border-radius: 20px; /* Rounded for button feel */
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: inherit;
 }
 
 .farmer-app-showcase,
