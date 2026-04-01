@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Growing Green — Waitlist Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Playfair Display SC', serif;
+      background-color: #228B22;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      background-color: #006400;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-header h1 { font-size: 1.6em; }
+    .admin-header span { font-size: 0.95em; color: #a5d6a7; }
+
+    .admin-body {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    /* Login screen */
+    .login-box {
+      background: white;
+      color: black;
+      max-width: 400px;
+      margin: 80px auto;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .login-box h2 { color: #228B22; margin-bottom: 20px; }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: inherit;
+      margin-bottom: 16px;
+    }
+
+    .login-box input:focus { outline: none; border-color: #228B22; }
+
+    .login-box button, .action-btn {
+      background-color: #006400;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-family: inherit;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .login-box button:hover, .action-btn:hover { background-color: #228B22; }
+
+    .login-error {
+      color: #c62828;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* Dashboard */
+    .dashboard { display: none; }
+
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: white;
+      color: black;
+      padding: 20px 28px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .stat-card .number {
+      font-size: 2em;
+      color: #006400;
+      font-weight: bold;
+    }
+
+    .stat-card .label {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .toolbar h2 { font-size: 1.4em; }
+
+    .table-wrapper {
+      background: white;
+      border-radius: 10px;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: black;
+      font-size: 0.9em;
+    }
+
+    th {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      padding: 14px 16px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-top: 1px solid #eee;
+    }
+
+    tr:hover td { background-color: #f9f9f9; }
+
+    .status-select {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+
+    .status-pending { color: #e65100; }
+    .status-confirmed { color: #1565c0; }
+    .status-invited { color: #6a1b9a; }
+    .status-converted { color: #2e7d32; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state p { font-size: 1.2em; }
+
+    @media (max-width: 768px) {
+      .stats-bar { flex-direction: column; }
+      .stat-card { width: 100%; }
+      table { font-size: 0.8em; }
+      th, td { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>Waitlist Admin</h2>
+      <p style="margin-bottom:20px;color:#666">Enter your admin key to continue.</p>
+      <input type="password" id="admin-key" placeholder="Admin Key" autocomplete="off">
+      <button id="login-btn" onclick="doLogin()">Sign In</button>
+      <p class="login-error" id="login-error">Invalid admin key. Try again.</p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard">
+    <div class="admin-header">
+      <h1>Growing Green — Waitlist</h1>
+      <span id="last-updated"></span>
+    </div>
+
+    <div class="admin-body">
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="number" id="total-count">0</div>
+          <div class="label">Total Signups</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="pending-count">0</div>
+          <div class="label">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="invited-count">0</div>
+          <div class="label">Invited</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="converted-count">0</div>
+          <div class="label">Converted</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <h2>All Signups</h2>
+        <div>
+          <button class="action-btn" onclick="exportCSV()" style="margin-right:8px">Export CSV</button>
+          <button class="action-btn" onclick="loadSignups()">Refresh</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Farm</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Signed Up</th>
+            </tr>
+          </thead>
+          <tbody id="signups-body">
+          </tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none">
+          <p>No signups yet. Share the waitlist!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var SUPABASE_URL = 'https://zorrzpdfequbymjgocga.supabase.co';
+    var ADMIN_ENDPOINT = SUPABASE_URL + '/functions/v1/waitlist-admin';
+    var adminKey = '';
+
+    function doLogin() {
+      adminKey = document.getElementById('admin-key').value.trim();
+      if (!adminKey) return;
+
+      document.getElementById('login-btn').textContent = 'Checking...';
+      document.getElementById('login-error').style.display = 'none';
+
+      fetch(ADMIN_ENDPOINT, {
+        headers: { 'X-Admin-Key': adminKey },
+      })
+      .then(function(res) {
+        if (res.status === 401) throw new Error('Unauthorized');
+        return res.json();
+      })
+      .then(function(data) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        renderSignups(data);
+      })
+      .catch(function() {
+        document.getElementById('login-error').style.display = 'block';
+        document.getElementById('login-btn').textContent = 'Sign In';
+      });
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('admin-key').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    function loadSignups() {
+      fetch(ADMIN_ENDPOINT, {
+        headers: { 'X-Admin-Key': adminKey },
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) { renderSignups(data); });
+    }
+
+    function renderSignups(data) {
+      var signups = data.signups || [];
+      var tbody = document.getElementById('signups-body');
+      var empty = document.getElementById('empty-state');
+
+      // Stats
+      document.getElementById('total-count').textContent = signups.length;
+      document.getElementById('pending-count').textContent = signups.filter(function(s) { return s.status === 'pending'; }).length;
+      document.getElementById('invited-count').textContent = signups.filter(function(s) { return s.status === 'invited'; }).length;
+      document.getElementById('converted-count').textContent = signups.filter(function(s) { return s.status === 'converted'; }).length;
+      document.getElementById('last-updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+
+      if (signups.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      tbody.innerHTML = signups.map(function(s) {
+        var date = new Date(s.created_at).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+        });
+        return '<tr>' +
+          '<td>' + escapeHtml(s.full_name) + '</td>' +
+          '<td><a href="mailto:' + escapeHtml(s.email) + '">' + escapeHtml(s.email) + '</a></td>' +
+          '<td>' + escapeHtml(s.farm_name || '—') + '</td>' +
+          '<td>' + escapeHtml(s.location || '—') + '</td>' +
+          '<td>' +
+            '<select class="status-select status-' + s.status + '" onchange="updateStatus(\'' + s.id + '\', this.value)">' +
+              '<option value="pending"' + (s.status === 'pending' ? ' selected' : '') + '>Pending</option>' +
+              '<option value="confirmed"' + (s.status === 'confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+              '<option value="invited"' + (s.status === 'invited' ? ' selected' : '') + '>Invited</option>' +
+              '<option value="converted"' + (s.status === 'converted' ? ' selected' : '') + '>Converted</option>' +
+            '</select>' +
+          '</td>' +
+          '<td>' + date + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function updateStatus(id, status) {
+      fetch(ADMIN_ENDPOINT, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Key': adminKey,
+        },
+        body: JSON.stringify({ id: id, status: status }),
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) loadSignups();
+      });
+    }
+
+    function exportCSV() {
+      fetch(ADMIN_ENDPOINT + '?format=csv', {
+        headers: { 'X-Admin-Key': adminKey },
+      })
+      .then(function(res) { return res.blob(); })
+      .then(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'waitlist_signups.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+
+</body>
+</html>

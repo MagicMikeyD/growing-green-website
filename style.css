@@ -277,6 +277,113 @@ header p {
   text-align: left;
 }
 
+/* Waitlist Section */
+.waitlist-section {
+  background-color: white;
+  padding: 60px 20px;
+  margin: 20px 0;
+  color: black;
+}
+
+.waitlist-container {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.waitlist-container h2 {
+  font-size: 2.5em;
+  color: #228B22;
+  margin-bottom: 10px;
+}
+
+.waitlist-container > p {
+  font-size: 1.2em;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.waitlist-form {
+  text-align: left;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.95em;
+  color: #333;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 1em;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #228B22;
+}
+
+.waitlist-btn {
+  display: block;
+  width: 100%;
+  background-color: #006400;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  font-size: 1.1em;
+  font-family: inherit;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.waitlist-btn:hover {
+  background-color: #228B22;
+}
+
+.waitlist-btn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.waitlist-message {
+  margin-top: 20px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 1.05em;
+  text-align: center;
+}
+
+.waitlist-message.success {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #a5d6a7;
+}
+
+.waitlist-message.error {
+  background-color: #fbe9e7;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
 footer {
   background-color: #228B22; /* Uniform medium green footer */
   padding: 20px;
@@ -324,5 +431,10 @@ footer {
 
   .pricing-container h3 {
     text-align: center;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
   }
 }

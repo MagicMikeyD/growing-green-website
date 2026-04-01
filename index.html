@@ -159,11 +159,96 @@
     </div>
   </section>
 
+  <div class="section-divider"></div>
+
+  <section class="waitlist-section">
+    <div class="waitlist-container">
+      <h2>Join the Waitlist</h2>
+      <p>Be the first to know when Growing Green launches. Waitlist members get an extended <strong>30-day free trial</strong> — double our standard offer.</p>
+
+      <form id="waitlist-form" class="waitlist-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="wl-name">Full Name *</label>
+            <input type="text" id="wl-name" name="full_name" required placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label for="wl-email">Email *</label>
+            <input type="email" id="wl-email" name="email" required placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="wl-farm">Farm / Business Name</label>
+            <input type="text" id="wl-farm" name="farm_name" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label for="wl-location">City &amp; State</label>
+            <input type="text" id="wl-location" name="location" placeholder="e.g. Austin, TX">
+          </div>
+        </div>
+        <button type="submit" class="waitlist-btn">Join the Waitlist</button>
+      </form>
+
+      <div id="waitlist-message" class="waitlist-message" style="display:none"></div>
+    </div>
+  </section>
+
   <footer>
     <p>A Mana Softworks Production.</p>
     <p>© 2025 Mana Softworks LLC.</p>
     <p>Contact: Mikey.floyd@manasoftworks.com</p>
   </footer>
+
+  <script>
+    (function() {
+      var SUPABASE_URL = 'https://zorrzpdfequbymjgocga.supabase.co';
+      var form = document.getElementById('waitlist-form');
+      var msg = document.getElementById('waitlist-message');
+      var btn = form.querySelector('.waitlist-btn');
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+        msg.style.display = 'none';
+
+        var payload = {
+          full_name: form.full_name.value.trim(),
+          email: form.email.value.trim(),
+          farm_name: form.farm_name.value.trim() || null,
+          location: form.location.value.trim() || null,
+        };
+
+        fetch(SUPABASE_URL + '/functions/v1/waitlist-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          msg.style.display = 'block';
+          if (data.success) {
+            msg.className = 'waitlist-message success';
+            msg.textContent = data.message;
+            form.reset();
+          } else {
+            msg.className = 'waitlist-message error';
+            msg.textContent = data.error || 'Something went wrong. Please try again.';
+          }
+        })
+        .catch(function() {
+          msg.style.display = 'block';
+          msg.className = 'waitlist-message error';
+          msg.textContent = 'Network error. Please check your connection and try again.';
+        })
+        .finally(function() {
+          btn.disabled = false;
+          btn.textContent = 'Join the Waitlist';
+        });
+      });
+    })();
+  </script>
 
 </body>
 </html>
