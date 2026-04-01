@@ -174,11 +174,130 @@
 
     .empty-state p { font-size: 1.2em; }
 
+    /* Invite Section */
+    .invite-section {
+      margin-top: 32px;
+      background: white;
+      border-radius: 10px;
+      padding: 28px 32px;
+      color: black;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .invite-section h2 {
+      color: #228B22;
+      margin: 0 0 6px;
+      font-size: 1.4em;
+    }
+
+    .invite-section p.subtitle {
+      color: #666;
+      margin: 0 0 20px;
+      font-size: 0.9em;
+    }
+
+    .invite-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .invite-tab {
+      padding: 10px 24px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 0.95em;
+      color: #666;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .invite-tab.active {
+      color: #228B22;
+      border-bottom-color: #228B22;
+      font-weight: bold;
+    }
+
+    .invite-panel { display: none; }
+    .invite-panel.active { display: block; }
+
+    .invite-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .invite-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .invite-field label {
+      font-size: 0.85em;
+      color: #333;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    .invite-field input, .invite-field textarea {
+      padding: 10px 12px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-family: inherit;
+    }
+
+    .invite-field input:focus, .invite-field textarea:focus {
+      outline: none;
+      border-color: #228B22;
+    }
+
+    .invite-field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .invite-send-btn {
+      background-color: #006400;
+      color: white;
+      border: none;
+      padding: 10px 28px;
+      font-size: 0.95em;
+      font-family: inherit;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      height: fit-content;
+      transition: background-color 0.2s;
+    }
+
+    .invite-send-btn:hover { background-color: #228B22; }
+    .invite-send-btn:disabled { background-color: #999; cursor: not-allowed; }
+
+    .invite-result {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      display: none;
+    }
+
+    .invite-result.success { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+    .invite-result.error { background: #fbe9e7; color: #c62828; border: 1px solid #ef9a9a; }
+
     @media (max-width: 768px) {
       .stats-bar { flex-direction: column; }
       .stat-card { width: 100%; }
       table { font-size: 0.8em; }
       th, td { padding: 10px 12px; }
+      .invite-row { flex-direction: column; }
+      .invite-send-btn { width: 100%; margin-top: 8px; }
+      .invite-section { padding: 20px 16px; }
     }
   </style>
 </head>
@@ -249,6 +368,46 @@
           <p>No signups yet. Share the waitlist!</p>
         </div>
       </div>
+
+      <!-- Send Invite Section -->
+      <div class="invite-section">
+        <h2>Send Invite Emails</h2>
+        <p class="subtitle">Send the branded waitlist invite email to potential farmers. The email includes app features, 30-day trial hook, and a link to sign up.</p>
+
+        <div class="invite-tabs">
+          <button class="invite-tab active" onclick="switchTab('single')">Single Send</button>
+          <button class="invite-tab" onclick="switchTab('bulk')">Bulk Send</button>
+        </div>
+
+        <!-- Single Send -->
+        <div id="tab-single" class="invite-panel active">
+          <div class="invite-row">
+            <div class="invite-field">
+              <label for="invite-name">Name</label>
+              <input type="text" id="invite-name" placeholder="e.g. John Smith">
+            </div>
+            <div class="invite-field">
+              <label for="invite-email">Email *</label>
+              <input type="email" id="invite-email" placeholder="farmer@example.com">
+            </div>
+            <button class="invite-send-btn" id="single-send-btn" onclick="sendSingle()">Send</button>
+          </div>
+          <div id="single-result" class="invite-result"></div>
+        </div>
+
+        <!-- Bulk Send -->
+        <div id="tab-bulk" class="invite-panel">
+          <div class="invite-field">
+            <label for="invite-bulk">One per line: email, name (name is optional)</label>
+            <textarea id="invite-bulk" placeholder="john@example.com, John Smith&#10;jane@farm.co&#10;bob@greenacres.com, Bob"></textarea>
+          </div>
+          <div style="margin-top:12px">
+            <button class="invite-send-btn" id="bulk-send-btn" onclick="sendBulk()">Send All</button>
+          </div>
+          <div id="bulk-result" class="invite-result"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -370,6 +529,108 @@
       var div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
+    }
+
+    // --- Invite email functions ---
+    var INVITE_ENDPOINT = SUPABASE_URL + '/functions/v1/send-waitlist-invite';
+
+    function switchTab(tab) {
+      document.querySelectorAll('.invite-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.invite-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('tab-' + tab).classList.add('active');
+      // Activate the correct tab button
+      var tabs = document.querySelectorAll('.invite-tab');
+      tabs.forEach(function(t) {
+        if (t.textContent.toLowerCase().indexOf(tab) !== -1) t.classList.add('active');
+      });
+    }
+
+    function showResult(id, success, message) {
+      var el = document.getElementById(id);
+      el.style.display = 'block';
+      el.className = 'invite-result ' + (success ? 'success' : 'error');
+      el.textContent = message;
+    }
+
+    function sendSingle() {
+      var email = document.getElementById('invite-email').value.trim();
+      var name = document.getElementById('invite-name').value.trim();
+      var btn = document.getElementById('single-send-btn');
+      var resultId = 'single-result';
+
+      if (!email) { showResult(resultId, false, 'Email is required.'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      document.getElementById(resultId).style.display = 'none';
+
+      var payload = { to: email };
+      if (name) payload.name = name;
+
+      fetch(INVITE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+        body: JSON.stringify(payload),
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.sent > 0) {
+          showResult(resultId, true, 'Invite sent to ' + email + '!');
+          document.getElementById('invite-email').value = '';
+          document.getElementById('invite-name').value = '';
+        } else {
+          showResult(resultId, false, 'Failed to send: ' + (data.results[0].error || 'Unknown error'));
+        }
+      })
+      .catch(function() {
+        showResult(resultId, false, 'Network error. Check your connection.');
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Send';
+      });
+    }
+
+    function sendBulk() {
+      var text = document.getElementById('invite-bulk').value.trim();
+      var btn = document.getElementById('bulk-send-btn');
+      var resultId = 'bulk-result';
+
+      if (!text) { showResult(resultId, false, 'Paste at least one email.'); return; }
+
+      var lines = text.split('\n').filter(function(l) { return l.trim(); });
+      var recipients = lines.map(function(line) {
+        var parts = line.split(',');
+        var email = parts[0].trim();
+        var name = parts.length > 1 ? parts.slice(1).join(',').trim() : undefined;
+        return name ? { email: email, name: name } : { email: email };
+      });
+
+      if (recipients.length === 0) { showResult(resultId, false, 'No valid entries found.'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending ' + recipients.length + '...';
+      document.getElementById(resultId).style.display = 'none';
+
+      fetch(INVITE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+        body: JSON.stringify({ to: recipients }),
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var msg = data.sent + ' sent';
+        if (data.failed > 0) msg += ', ' + data.failed + ' failed';
+        showResult(resultId, data.failed === 0, msg);
+        if (data.failed === 0) document.getElementById('invite-bulk').value = '';
+      })
+      .catch(function() {
+        showResult(resultId, false, 'Network error. Check your connection.');
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Send All';
+      });
     }
   </script>
 
