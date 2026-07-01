@@ -3,61 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Growing Green App</title>
+  <title>Growing Green — Farm Management & Marketplace</title>
+  <meta name="description" content="Offline-first farm management software and marketplace for small and mid-size farms. Voice-enabled field logging, livestock tracking, and a built-in customer marketplace. 30-day free trial.">
+  <link rel="canonical" href="https://growinggreen.app/">
+
+  <!-- Favicon & PWA manifest -->
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#228B22">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://growinggreen.app/">
+  <meta property="og:title" content="Growing Green — Farm Management & Marketplace">
+  <meta property="og:description" content="Offline-first farm management, voice-enabled field logging, and a built-in marketplace. Built for small and mid-size farms.">
+  <meta property="og:image" content="https://growinggreen.app/farm-sunset.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Growing Green — Farm Management & Marketplace">
+  <meta name="twitter:description" content="Offline-first farm management, voice-enabled field logging, and a built-in marketplace.">
+  <meta name="twitter:image" content="https://growinggreen.app/farm-sunset.jpg">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <!-- TODO: paste Plausible snippet here once signup is complete -->
+  <!-- <script defer data-domain="growinggreen.app" src="https://plausible.io/js/script.js"></script> -->
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Mana Softworks LLC",
+    "url": "https://growinggreen.app",
+    "logo": "https://growinggreen.app/assets/logo.svg",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "support@growinggreen.app",
+      "contactType": "Customer Support"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Growing Green Farmer App",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "24.99",
+      "priceCurrency": "USD",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": "24.99",
+        "priceCurrency": "USD",
+        "billingDuration": "P1M"
+      }
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Mana Softworks LLC"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Growing Green",
+    "url": "https://growinggreen.app"
+  }
+  </script>
 </head>
 <body>
+  <nav class="site-nav" aria-label="Main">
+    <div class="site-nav-inner">
+      <a class="site-nav-brand" href="/">
+        <img class="site-logo" src="/assets/logo-dark.svg" alt="">
+        <span>Growing Green</span>
+      </a>
+      <button class="site-nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <ul class="site-nav-links" id="primary-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+        <li><a href="/support.html">Support</a></li>
+        <li><a class="nav-cta" href="#waitlist">Join Waitlist</a></li>
+      </ul>
+    </div>
+  </nav>
+
   <header>
     <h1>Growing Green</h1>
-    <!-- <div class="logo">(Logo Here)</div> --> <!-- Commented out; replace with <img src="logo.png" alt="Growing Green Logo"> -->
     <p>Farm management and marketplace software for farmers and entrepreneurs.</p>
+    <a href="#waitlist" class="download cta-large hero-cta">Join the Waitlist — 30-day free trial</a>
   </header>
 
+  <div class="trust-strip">
+    <span>Built for farmers</span>·<span>Offline-first</span>·<span>No app store fees</span>·<span>Your data stays yours</span>
+  </div>
+
   <section class="products-header">
-    <h1>Products</h1>
+    <h2>Products</h2>
   </section>
 
   <section class="products-panels">
     <div class="panel">
       <div class="panel-image">
-        <img src="farmer-app.png" alt="Farmer App Image">
+        <img src="farmer-app.png" alt="Growing Green Farmer App home screen — dashboard with livestock, harvest, and inventory cards" width="260" height="200">
       </div>
       <h2>Farmer App</h2>
       <p>Farm management ecosystem for farmers and business owners.</p>
       <a href="https://admin.growinggreen.app" class="download" target="_blank" rel="noopener">Visit and Download</a>
+      <!-- Store badges hidden until the native apps are live on the App Store / Google Play
+           (v2.3 Phase 1). Restore this block with the real store URLs at launch:
+      <div class="app-store-badges">
+        <a href="#" class="app-store-badge" aria-label="Download on the App Store">
+          <span class="badge-small">Download on the</span>
+          <span class="badge-big">App Store</span>
+        </a>
+        <a href="#" class="app-store-badge" aria-label="Get it on Google Play">
+          <span class="badge-small">Get it on</span>
+          <span class="badge-big">Google Play</span>
+        </a>
+      </div>
+      -->
     </div>
     <div class="panel">
       <div class="panel-image">
-        <img src="market-app.png" alt="Market App Image">
+        <img src="market-app.png" alt="Growing Green Market App — customers browsing local farm products" width="260" height="200" loading="lazy">
       </div>
       <h2>Market App</h2>
       <p>Market for customers. Shop local. Eat local.</p>
       <a href="https://shop.growinggreen.app" class="download" target="_blank" rel="noopener">Visit and Download</a>
+      <!-- Store badges hidden until the native apps are live on the App Store / Google Play
+           (v2.3 Phase 1). Restore this block with the real store URLs at launch:
+      <div class="app-store-badges">
+        <a href="#" class="app-store-badge" aria-label="Download on the App Store">
+          <span class="badge-small">Download on the</span>
+          <span class="badge-big">App Store</span>
+        </a>
+        <a href="#" class="app-store-badge" aria-label="Get it on Google Play">
+          <span class="badge-small">Get it on</span>
+          <span class="badge-big">Google Play</span>
+        </a>
+      </div>
+      -->
     </div>
     <div class="panel">
       <div class="panel-image">
-        <img src="worker-app.png" alt="Worker App Image">
+        <img src="worker-app.png" alt="Growing Green Worker App — clock-in screen with task list" width="260" height="200" loading="lazy">
       </div>
       <h2>Worker App</h2>
       <p>App for employees and workers. Work smarter.</p>
       <a href="https://team.growinggreen.app" class="download" target="_blank" rel="noopener">Visit and Download</a>
+      <!-- Store badges hidden until the native apps are live on the App Store / Google Play
+           (v2.3 Phase 1). Restore this block with the real store URLs at launch:
+      <div class="app-store-badges">
+        <a href="#" class="app-store-badge" aria-label="Download on the App Store">
+          <span class="badge-small">Download on the</span>
+          <span class="badge-big">App Store</span>
+        </a>
+        <a href="#" class="app-store-badge" aria-label="Get it on Google Play">
+          <span class="badge-small">Get it on</span>
+          <span class="badge-big">Google Play</span>
+        </a>
+      </div>
+      -->
     </div>
   </section>
 
   <section class="features-header">
-    <h1>Features</h1>
+    <h2>Features</h2>
   </section>
 
   <section class="farmer-app-showcase">
     <div class="showcase-container">
       <div class="showcase-images">
-        <!-- Automatic slideshow images -->
-        <img src="cows-image.png" alt="Cows Image">
-        <img src="sunflower-image.png" alt="Sunflower Image">
-        <img src="greenhouse-image.png" alt="Greenhouse Image">
+        <img src="cows-image.png" alt="Pasture-raised cattle — example of livestock tracking with Growing Green" loading="lazy">
+        <img src="sunflower-image.png" alt="Sunflower crop in bloom — harvest planning view" loading="lazy">
+        <img src="greenhouse-image.png" alt="Greenhouse interior — protected-growing inventory tracking" loading="lazy">
       </div>
       <div class="showcase-text">
         <h2>Farmer App</h2>
@@ -65,76 +197,137 @@
         <h3>Key Features</h3>
         <ul>
           <li>Offline field logs with voice notes and GPS</li>
-          <li>Inventory, harvest, and employee management</li>
+          <li>Inventory, harvest, and livestock management</li>
           <li>Local marketplace for direct sales</li>
           <li>Worker punch in/out with sync</li>
           <li>Communicates with both the Market App and Worker app to give you full control over your business.</li>
         </ul>
-        <h3>New Features Coming soon!</h3>
+        <a class="showcase-cta" href="https://admin.growinggreen.app" target="_blank" rel="noopener">Learn more about the Farmer App →</a>
       </div>
     </div>
   </section>
 
-  <div class="section-divider"></div> <!-- Robust green border separator -->
+  <div class="section-divider"></div>
 
   <section class="market-app-showcase">
-    <div class="showcase-container"> <!-- Removed 'reverse' for text left, images right -->
+    <div class="showcase-container">
       <div class="showcase-text">
         <h2>Market App</h2>
         <p>A full farmer's market in your pocket. Shoppers find local farms and shops to purchase the freshest foods and unique experiences at the best prices. Seamless and painless.</p>
         <h3>Key Features</h3>
         <ul>
-          <li>Geolocate small farms and businesses within a 0-300 mile radius</li>
-          <li>Subscribe to CSAs, buy small, buy bulk, set appointments.</li>
+          <li>Geolocate small farms and businesses within a 0–300 mile radius</li>
+          <li>Subscribe to CSAs, buy small, buy bulk, set appointments</li>
           <li>Make purchases in-app, pick up, or get delivered</li>
         </ul>
-        <h3>New Features Coming soon!</h3>
+        <a class="showcase-cta" href="https://shop.growinggreen.app" target="_blank" rel="noopener">Learn more about the Market App →</a>
       </div>
       <div class="showcase-images">
-        <!-- Automatic slideshow images -->
-        <img src="farmer-market.png" alt="Farmer Market Image">
-        <img src="old-farm-truck.png" alt="Old Farm Truck Image">
-        <img src="livestock-market.png" alt="Livestock Market Image">
+        <img src="farmer-market.png" alt="Outdoor farmer's market stand with fresh produce" loading="lazy">
+        <img src="old-farm-truck.png" alt="Vintage farm truck — local delivery and pickup" loading="lazy">
+        <img src="livestock-market.png" alt="Livestock market — direct meat and dairy sales" loading="lazy">
       </div>
     </div>
   </section>
 
-  <div class="section-divider"></div> <!-- Robust green border separator -->
+  <div class="section-divider"></div>
 
   <section class="worker-app-showcase">
     <div class="showcase-container">
       <div class="showcase-images">
-        <!-- Automatic slideshow images -->
-        <img src="workers-package.png" alt="Workers Package Image">
-        <img src="tractor-tilling.png" alt="Tractor Tilling Image">
-        <img src="farmhands-orchard.png" alt="Farmhands Orchard Image">
+        <img src="workers-package.png" alt="Worker packing produce into a box for shipment" loading="lazy">
+        <img src="tractor-tilling.png" alt="Tractor tilling a field — equipment and task tracking" loading="lazy">
+        <img src="farmhands-orchard.png" alt="Farmhands working in an orchard — coordinated task management" loading="lazy">
       </div>
       <div class="showcase-text">
         <h2>Worker App</h2>
         <p>A free tool for farmhands and workers. Clock in and out from anywhere, get your tasks, and more.</p>
         <h3>Key Features</h3>
         <ul>
-          <li>Punch in/out with offline sync</li>
-          <li>Task management from farmer</li>
+          <li>Punch in/out with offline sync and GPS stamps</li>
+          <li>Task management direct from the farmer</li>
           <li>PTO and pay stubs</li>
         </ul>
-        <h3>New Features Coming soon!</h3>
+        <a class="showcase-cta" href="https://team.growinggreen.app" target="_blank" rel="noopener">Learn more about the Worker App →</a>
       </div>
     </div>
   </section>
 
-  <div class="section-divider"></div> <!-- Robust green border separator -->
+  <div class="section-divider"></div>
 
-  <section class="pricing-section">
+  <section class="comparison-section">
+    <div class="comparison-container">
+      <h2>Why Growing Green vs the alternatives</h2>
+      <p>Honest comparison against the two farm/operations tools we hear about most often.</p>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="gg-col">Growing Green</th>
+            <th>Farmbrite</th>
+            <th>SafetyCulture</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Monthly price</td>
+            <td class="gg-col">$24.99</td>
+            <td>$59</td>
+            <td>~$50 / user</td>
+          </tr>
+          <tr>
+            <td>Offline support</td>
+            <td class="gg-col">Full (built offline-first)</td>
+            <td>Limited</td>
+            <td>Limited</td>
+          </tr>
+          <tr>
+            <td>Marketplace included</td>
+            <td class="gg-col">Yes</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Voice field logging</td>
+            <td class="gg-col">Yes</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Worker / employee app</td>
+            <td class="gg-col">Free, included</td>
+            <td>Add-on</td>
+            <td>Add-on</td>
+          </tr>
+          <tr>
+            <td>Transaction model</td>
+            <td class="gg-col">4% royalty, capped at $400/mo</td>
+            <td>N/A</td>
+            <td>N/A</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="comparison-note">Pricing reflects publicly listed plans at time of writing. Cash sales on Growing Green are tracked for bookkeeping but excluded from the royalty.</p>
+    </div>
+  </section>
+
+  <!-- Testimonials section removed 2026-07-01: the drafted quotes used invented
+       names/farms (FTC endorsement risk). Markup template preserved in
+       WEBSITE_ROADMAP.md — restore only with REAL beta-farmer quotes and written
+       permission to use their name/farm. -->
+
+  <div class="section-divider"></div>
+
+  <section id="pricing" class="pricing-section">
     <div class="pricing-container">
       <h2>Pricing</h2>
       <p>Our pricing is designed to empower farmers and entrepreneurs with affordable, high-value tools that scale with your business. We keep costs lower than competitors while delivering premium features, and many expenses are tax-deductible for U.S. businesses.</p>
-      
+
       <div class="pricing-tiers">
         <div class="tier">
           <h3>Farmer App (Admin)</h3>
-          <p class="price">$39.99/month</p>
-          <p>Includes 15-day free trial. Plus 4% royalties on marketplace sales.</p>
+          <p class="price">$24.99/month</p>
+          <p>Includes a 30-day free trial. Plus 4% royalty on Stripe-processed marketplace sales, capped at $400/month per farm. Cash sales are not subject to the royalty.</p>
         </div>
         <div class="tier">
           <h3>Market App</h3>
@@ -147,15 +340,36 @@
           <p>Essential tools for employees at no charge.</p>
         </div>
       </div>
-      
+
       <h3>Why Our Pricing?</h3>
-      <p>Growing Green is built to reduce overhead and boost efficiency for small farms and entrepreneurs. The subscription covers unlimited access to management tools, offline sync, and AI features (coming soon), while royalties ensure we only succeed when you do—aligning our goals with yours.</p>
-      
+      <p>Growing Green is built to reduce overhead and boost efficiency for small farms and entrepreneurs. The subscription covers unlimited access to management tools, offline sync, and AI features (coming soon), while royalties ensure we only succeed when you do — aligning our goals with yours.</p>
+
       <h3>Lower Than Competitors</h3>
-      <p>Comparable farm management software like Farmbrite ($59/month) or SafetyCulture (~$50/month per user) often costs 25-50% more. We offer similar or better features at a fraction of the price, making advanced agtech accessible without breaking the bank.</p>
-      
+      <p>Comparable farm management software like Farmbrite ($59/month) or SafetyCulture (~$50/month per user) often costs 25–50% more. We offer similar or better features at a fraction of the price, making advanced agtech accessible without breaking the bank.</p>
+
       <h3>Tax Deductible</h3>
-      <p>For U.S. businesses, software subscriptions like the Farmer App are fully deductible as ordinary business expenses. Royalties on sales may also qualify as deductible costs—consult your tax advisor for details.</p>
+      <p>For U.S. businesses, software subscriptions like the Farmer App are fully deductible as ordinary business expenses. Royalties on sales may also qualify as deductible costs — consult your tax advisor for details.</p>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="faq-teaser">
+    <div class="faq-teaser-container">
+      <h2>Quick answers</h2>
+      <details class="faq-item">
+        <summary>How much does it cost?</summary>
+        <p>$24.99/month for the Farmer App after the trial. The Market and Worker apps are free. Marketplace sales processed through Stripe carry a 4% royalty, capped at $400/month per farm. Cash sales are tracked but free.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What if I lose internet in the field?</summary>
+        <p>The apps are offline-first by design. You keep working, your data stays on the device, and everything syncs automatically when you reconnect. No "waiting for connection" spinners.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Who owns my data?</summary>
+        <p>You do. Always. You can export your data as CSV at any time, and if you delete your account it's purged from active storage within 30 days.</p>
+      </details>
+      <p class="faq-see-all"><a href="/faq.html">See all questions →</a></p>
     </div>
   </section>
 
@@ -164,7 +378,7 @@
   <section id="waitlist" class="waitlist-section">
     <div class="waitlist-container">
       <h2>Join the Waitlist</h2>
-      <p>Be the first to know when Growing Green launches. Waitlist members get an extended <strong>30-day free trial</strong> — double our standard offer.</p>
+      <p>Be the first to know when Growing Green launches. Every new farmer gets a <strong>30-day free trial</strong> to get growing.</p>
 
       <form id="waitlist-form" class="waitlist-form">
         <div class="form-row">
@@ -194,13 +408,61 @@
     </div>
   </section>
 
-  <footer>
-    <p>A Mana Softworks Production.</p>
-    <p>© 2025 Mana Softworks LLC.</p>
-    <p>Contact: Mikey.floyd@manasoftworks.com</p>
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="site-footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://admin.growinggreen.app">Farmer App</a></li>
+          <li><a href="https://shop.growinggreen.app">Market App</a></li>
+          <li><a href="https://team.growinggreen.app">Worker App</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="mailto:hello@growinggreen.app">Contact</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy.html">Privacy Policy</a></li>
+          <li><a href="/terms.html">Terms of Service</a></li>
+          <li><a href="/account-deletion.html">Account Deletion</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="/faq.html">Help &amp; FAQ</a></li>
+          <li><a href="/support.html">Contact Support</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer-bottom">
+      © 2026 Mana Softworks LLC. All rights reserved. Made with care for farmers.
+    </div>
   </footer>
 
   <script>
+    // Mobile nav toggle
+    (function() {
+      var toggle = document.querySelector('.site-nav-toggle');
+      var links = document.getElementById('primary-nav');
+      if (!toggle || !links) return;
+      toggle.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
+  </script>
+
+  <script>
+    // Waitlist form submission
     (function() {
       var SUPABASE_URL = 'https://zorrzpdfequbymjgocga.supabase.co';
       var form = document.getElementById('waitlist-form');
@@ -232,6 +494,9 @@
             msg.className = 'waitlist-message success';
             msg.textContent = data.message;
             form.reset();
+            if (typeof window.plausible === 'function') {
+              window.plausible('Waitlist Signup');
+            }
           } else {
             msg.className = 'waitlist-message error';
             msg.textContent = data.error || 'Something went wrong. Please try again.';

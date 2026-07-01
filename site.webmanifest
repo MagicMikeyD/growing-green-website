@@ -1,0 +1,15 @@
+{
+  "name": "Growing Green",
+  "short_name": "Growing Green",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#228B22",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

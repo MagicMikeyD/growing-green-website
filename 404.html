@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Found — Growing Green</title>
+  <meta name="description" content="That page doesn't exist on Growing Green. Try Home, Pricing, FAQ, or Support.">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://growinggreen.app/404.html">
+
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#228B22">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- TODO: paste Plausible snippet here once signup is complete -->
+  <!-- <script defer data-domain="growinggreen.app" src="https://plausible.io/js/script.js"></script> -->
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main">
+    <div class="site-nav-inner">
+      <a class="site-nav-brand" href="/">
+        <img class="site-logo" src="/assets/logo-dark.svg" alt="">
+        <span>Growing Green</span>
+      </a>
+      <button class="site-nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <ul class="site-nav-links" id="primary-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/index.html#pricing">Pricing</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+        <li><a href="/support.html">Support</a></li>
+        <li><a class="nav-cta" href="/index.html#waitlist">Join Waitlist</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="error-section">
+    <h1>This field's a bit fallow.</h1>
+    <p>The page you're looking for doesn't exist or has moved. Try one of these:</p>
+    <ul class="error-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/index.html#pricing">Products &amp; Pricing</a></li>
+      <li><a href="/faq.html">Help &amp; FAQ</a></li>
+      <li><a href="/support.html">Contact Support</a></li>
+    </ul>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="site-footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://admin.growinggreen.app">Farmer App</a></li>
+          <li><a href="https://shop.growinggreen.app">Market App</a></li>
+          <li><a href="https://team.growinggreen.app">Worker App</a></li>
+          <li><a href="/index.html#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="mailto:hello@growinggreen.app">Contact</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy.html">Privacy Policy</a></li>
+          <li><a href="/terms.html">Terms of Service</a></li>
+          <li><a href="/account-deletion.html">Account Deletion</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="/faq.html">Help &amp; FAQ</a></li>
+          <li><a href="/support.html">Contact Support</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer-bottom">
+      © 2026 Mana Softworks LLC. All rights reserved. Made with care for farmers.
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      var toggle = document.querySelector('.site-nav-toggle');
+      var links = document.getElementById('primary-nav');
+      if (!toggle || !links) return;
+      toggle.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
+  </script>
+</body>
+</html>
