@@ -135,9 +135,13 @@
     document.getElementById('body').textContent = bodyText;
     document.title = entry[2] + ' — Growing Green';
 
-    // Optional document reference (e.g. INV-0004). Hard-sanitised, capped, and
-    // written as TEXT — never markup.
-    var ref = (q.get('ref') || '').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 24);
+    // Optional document reference. STRICT FORMAT, not merely sanitised: a
+    // permissive [A-Z0-9-]{24} was still 24 characters of attacker-chosen copy
+    // on our highest-trust page — enough to render "CALL-1-800-555-0199" under
+    // a scary declined-payment heading. Only a real document number matches
+    // (review fix). Written as TEXT, never markup.
+    var rawRef = (q.get('ref') || '').toUpperCase();
+    var ref = /^(INV|ORD)-[0-9]{1,10}$/.test(rawRef) ? rawRef : '';
     if (ref) {
       var el = document.getElementById('ref');
       el.textContent = ref;
