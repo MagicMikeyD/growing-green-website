@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete your payment — Growing Green</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <meta name="theme-color" content="#228B22">
+  <script src="https://js.stripe.com/v3/"></script>
+  <!--
+    Card form for Quick Order payment links.
+
+    WHY IT LIVES HERE: this page used to be rendered by the payment-checkout
+    edge function, but Supabase's gateway serves every HTML response from
+    *.supabase.co/functions/v1/* as text/plain under
+    `CSP: default-src 'none'; sandbox`. That CSP blocks Stripe.js outright, so
+    the page could not take a card AT ALL — the whole Quick Order payment rail
+    was dead on arrival. On our own domain there is no such policy.
+
+    SECURITY: order data arrives as JSON and is written with textContent, so a
+    farm or product name containing markup is inert. The old server-rendered
+    page interpolated farmName / item names / customerName straight into HTML.
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #f5f5f5; color: #333;
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    .container { max-width: 480px; margin: 32px auto; background: #fff; border-radius: 12px;
+                 overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+    .header { background: #2e7d32; padding: 20px; text-align: center; color: #fff;
+              font-size: 20px; font-weight: 700; }
+    .body { padding: 28px 24px; }
+    h2 { text-align: center; margin: 0 0 4px; font-size: 18px; color: #333; }
+    .sub { text-align: center; color: #666; font-size: 14px; margin: 0 0 20px; }
+    .order-ref { text-align: center; background: #f5f5f5; border-radius: 8px; padding: 10px; margin-bottom: 20px; }
+    .order-ref span { font-size: 18px; font-weight: 700; font-family: monospace; letter-spacing: 1px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 16px; }
+    th { padding: 6px 0; text-align: left; color: #2e7d32; font-weight: 600; border-bottom: 2px solid #2e7d32; }
+    td { padding: 6px 0; border-bottom: 1px solid #e8f5e9; }
+    .total { text-align: right; font-size: 22px; font-weight: 700; color: #2e7d32; margin: 12px 0 24px; }
+    label { font-size: 13px; color: #666; display: block; margin-bottom: 8px; }
+    #card-element { border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin-bottom: 16px; background: #fff; }
+    #card-errors { color: #c62828; font-size: 13px; margin-bottom: 12px; min-height: 20px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px;
+           font-weight: 700; color: #fff; background: #2e7d32; cursor: pointer; }
+    .btn:disabled { background: #a5d6a7; cursor: not-allowed; }
+    .note { text-align: center; font-size: 12px; color: #999; margin-top: 12px; }
+    .footer { background: #f5f5f5; padding: 16px 24px; text-align: center; font-size: 12px;
+              color: #999; border-top: 1px solid #e0e0e0; }
+    .state { text-align: center; padding: 40px 24px; }
+    .state h2 { color: #2e7d32; margin-bottom: 12px; font-size: 20px; }
+    .state p { color: #666; font-size: 15px; line-height: 1.5; margin: 0; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Growing Green Market</div>
+
+    <div class="state" id="loading"><p>Loading your order…</p></div>
+
+    <div class="body" id="form" hidden>
+      <h2>Complete your payment</h2>
+      <p class="sub" id="farm-line"></p>
+      <div class="order-ref"><span id="order-ref"></span></div>
+      <table>
+        <thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th></tr></thead>
+        <tbody id="items"></tbody>
+      </table>
+      <div class="total" id="total"></div>
+      <label for="card-element">Card details</label>
+      <div id="card-element"></div>
+      <div id="card-errors" role="alert"></div>
+      <button class="btn" id="pay-btn" type="button">Save card &amp; confirm</button>
+      <p class="note" id="note"></p>
+    </div>
+
+    <div class="state" id="done" hidden>
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <h2>Payment confirmed</h2>
+      <p id="done-body"></p>
+    </div>
+
+    <div class="state" id="oops" hidden>
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <h2 id="oops-title">Something went wrong</h2>
+      <p id="oops-body"></p>
+    </div>
+
+    <div class="footer">Growing Green Market · Supporting local farmers</div>
+  </div>
+
+  <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    function show(id) {
+      ['loading','form','done','oops'].forEach(function (k) { $(k).hidden = (k !== id); });
+    }
+    function fail(title, body) {
+      $('oops-title').textContent = title;
+      $('oops-body').textContent = body;
+      show('oops');
+    }
+    function money(cents) { return '$' + ((cents || 0) / 100).toFixed(2); }
+
+    var q = new URLSearchParams(window.location.search);
+    var secret = q.get('secret');
+    var orderId = q.get('order');
+    var api = q.get('api');
+
+    // The API base travels in the link so one static page serves both staging
+    // and production. Allow-listed so it can only ever be a Supabase project.
+    var apiOk = false;
+    try {
+      var u = new URL(api);
+      apiOk = u.protocol === 'https:' && /\.supabase\.co$/.test(u.hostname);
+    } catch (e) { apiOk = false; }
+
+    if (!secret || !orderId || !apiOk) {
+      fail('That link isn’t valid', 'It may be incomplete or expired. Use the link from your email, or contact the farm.');
+      return;
+    }
+
+    var endpoint = new URL('/functions/v1/payment-checkout', api);
+    endpoint.searchParams.set('order', orderId);
+    endpoint.searchParams.set('format', 'json');
+
+    fetch(endpoint.toString(), { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || d.ok !== true) {
+          var codes = {
+            not_found:  ['Order not found', 'We couldn’t find this order. It may have been cancelled.'],
+            cancelled:  ['Order cancelled', 'This order has been cancelled — no payment is needed.'],
+            already:    ['Already confirmed', 'Your card is already saved for this order. Nothing further to do.'],
+            unavailable:['Payment unavailable', 'This farm isn’t set up to take card payments yet. Contact them to arrange payment.']
+          };
+          var c = codes[d && d.code] || ['Something went wrong', 'Please try the link again, or contact the farm.'];
+          if (d && d.code === 'already') { $('done-body').textContent = c[1]; show('done'); return; }
+          fail(c[0], c[1]);
+          return;
+        }
+        render(d);
+      })
+      .catch(function () {
+        fail('We couldn’t load your order', 'Check your connection and try the link again.');
+      });
+
+    function render(d) {
+      // Every value below is written as TEXT — a farm or product name
+      // containing markup is displayed, never executed.
+      $('farm-line').textContent = 'Order from ' + (d.farmName || 'your farm');
+      $('order-ref').textContent = '#' + (d.orderRef || '');
+      $('total').textContent = money(d.totalCents);
+      $('note').textContent =
+        'Your card will not be charged now. It is charged when ' +
+        (d.farmName || 'the farm') + ' confirms your order is ready.';
+      $('done-body').textContent =
+        'Your card has been saved. ' + (d.farmName || 'The farm') +
+        ' will let you know when your order is ready.';
+
+      var tbody = $('items');
+      (d.items || []).forEach(function (it) {
+        var tr = document.createElement('tr');
+        var name = document.createElement('td');
+        name.textContent = it.name || 'Item';
+        var qty = document.createElement('td');
+        qty.style.textAlign = 'center';
+        qty.textContent = String(it.qty == null ? 1 : it.qty);
+        var price = document.createElement('td');
+        price.style.textAlign = 'right';
+        price.textContent = money(it.priceCents);
+        tr.appendChild(name); tr.appendChild(qty); tr.appendChild(price);
+        tbody.appendChild(tr);
+      });
+
+      var btn = $('pay-btn');
+      btn.textContent = 'Save card & confirm — ' + money(d.totalCents);
+
+      var stripe = Stripe(d.pk, { stripeAccount: d.stripeAccount });
+      var card = stripe.elements().create('card', { style: { base: { fontSize: '16px' } } });
+      card.mount('#card-element');
+      card.on('change', function (e) {
+        $('card-errors').textContent = e.error ? e.error.message : '';
+      });
+
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        btn.textContent = 'Processing…';
+        stripe.confirmCardSetup(secret, {
+          payment_method: { card: card, billing_details: { name: d.customerName || undefined } }
+        }).then(function (res) {
+          if (res.error) {
+            $('card-errors').textContent = res.error.message;
+            btn.disabled = false;
+            btn.textContent = 'Save card & confirm — ' + money(d.totalCents);
+            return;
+          }
+          show('done');
+        });
+      });
+
+      show('form');
+    }
+  })();
+  </script>
+</body>
+</html>
