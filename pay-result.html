@@ -104,8 +104,13 @@
       so_on_it:       ['👍','ok','The farm is on it','Your request has been passed along.'],
 
       // ---- order reconfirm (order-reconfirm) ----
-      order_confirmed:['✅','ok','Order confirmed','Thanks! The farm has been notified.'],
+      order_confirmed:['✅','ok','Order confirmed','Thanks! Your order is confirmed. The farm will let you know when it’s ready for pickup.'],
       order_invalid:  ['🔗','bad','That link isn’t valid','It may be missing information or have expired. Check the link in your email.'],
+      link_expired:   ['⌛','warn','This link has expired','It has already been used, or it’s no longer valid. Contact the farm if you need help.'],
+      already_processed:['✅','ok','Already handled','This order has already been processed — nothing further to do.'],
+      order_updated:  ['✅','ok','Confirmation received','The farm will follow up with next steps.'],
+      order_cancelled:['🚫','warn','Order cancelled','Your order has been cancelled and you will not be charged. If that was a mistake, please place a new order.'],
+      payment_failed: ['⚠️','bad','Payment declined','We tried to charge your card but it was declined. Contact the farm to arrange another payment method.'],
 
       // ---- generic ----
       error:          ['⚠️','bad','Something went wrong','Please try the link again, or contact the farm if it keeps happening.'],
@@ -120,7 +125,14 @@
     h.textContent = entry[2];
     if (entry[1] === 'warn') h.className = 'warn';
     if (entry[1] === 'bad')  h.className = 'bad';
-    document.getElementById('body').textContent = entry[3];
+    var bodyText = entry[3];
+    // Optional charged amount — digits only, so it can never carry markup.
+    var amt = (q.get('amt') || '').replace(/[^0-9]/g, '').slice(0, 9);
+    if (amt && q.get('s') === 'order_confirmed') {
+      bodyText = 'Thanks! Your card has been charged $' + (parseInt(amt, 10) / 100).toFixed(2) +
+                 '. The farm will let you know when your order is ready for pickup.';
+    }
+    document.getElementById('body').textContent = bodyText;
     document.title = entry[2] + ' — Growing Green';
 
     // Optional document reference (e.g. INV-0004). Hard-sanitised, capped, and
@@ -139,13 +151,18 @@
     var label = LABELS[q.get('ctaLabel')];
     var href = q.get('cta');
     if (label && href) {
+      // EXACT origins only. A /\.supabase\.co$/ pattern would let anyone with
+      // a free Supabase project turn this into a one-click hop from our brand
+      // domain to theirs — the same trap that was caught in pay.html.
+      var CTA_ALLOWED = [
+        'https://growinggreen.app',
+        'https://shop.growinggreen.app',
+        'https://zorrzpdfequbymjgocga.supabase.co', // production functions
+        'https://atocyakoajynffvpeyis.supabase.co'  // staging functions
+      ];
       var ok = false;
       try {
-        var u = new URL(href);
-        ok = u.protocol === 'https:' &&
-             (u.hostname === 'growinggreen.app' ||
-              u.hostname === 'shop.growinggreen.app' ||
-              /\.supabase\.co$/.test(u.hostname));
+        ok = CTA_ALLOWED.indexOf(new URL(href).origin) !== -1;
       } catch (e) { ok = false; }
       if (ok) {
         var a = document.getElementById('cta');

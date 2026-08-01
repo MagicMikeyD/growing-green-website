@@ -109,12 +109,27 @@
     var orderId = q.get('order');
     var api = q.get('api');
 
-    // The API base travels in the link so one static page serves both staging
-    // and production. Allow-listed so it can only ever be a Supabase project.
+    // The API base travels in the link so one static page serves both of our
+    // environments. It is pinned to an EXACT list of our own projects.
+    //
+    // ⚠️ DO NOT relax this to a pattern like /\.supabase\.co$/. Anyone can
+    // create a free Supabase project on that domain; a wildcard would let an
+    // attacker craft .../pay?api=https://theirs.supabase.co and have this page
+    // — on the real growinggreen.app origin, under our header, with a valid
+    // padlock — mount a live card field against THEIR publishable key and
+    // Stripe account, saving the victim's card to them. Stripe publishable
+    // keys are not origin-restricted, so nothing downstream would catch it.
+    // Caught in review before any customer saw a payment link.
+    var API_ALLOWED = [
+      'https://zorrzpdfequbymjgocga.supabase.co', // production
+      'https://atocyakoajynffvpeyis.supabase.co'  // staging
+    ];
     var apiOk = false;
     try {
       var u = new URL(api);
-      apiOk = u.protocol === 'https:' && /\.supabase\.co$/.test(u.hostname);
+      // Compare the normalised origin, so a userinfo@, port, path or casing
+      // trick cannot smuggle a different host past a string compare.
+      apiOk = API_ALLOWED.indexOf(u.origin) !== -1;
     } catch (e) { apiOk = false; }
 
     if (!secret || !orderId || !apiOk) {
