@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment — Growing Green</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <meta name="theme-color" content="#228B22">
+  <!--
+    Transactional result page for the payment/confirmation edge functions.
+
+    WHY THIS FILE EXISTS: Supabase's edge gateway rewrites every HTML response
+    from *.supabase.co/functions/v1/* to `Content-Type: text/plain` with
+    `X-Content-Type-Options: nosniff` and `CSP: default-src 'none'; sandbox`
+    (an anti-phishing policy on the shared domain). Our functions set the right
+    header; it is overridden on the wire. So buyers saw raw HTML source with a
+    mangled em-dash. Pages therefore live here, on our own domain, and the
+    functions 303-redirect with a status code.
+
+    SECURITY: copy is keyed by an ENUM below — this page never renders free
+    text from the query string. A page on our own brand domain that echoed
+    arbitrary text would be a ready-made phishing surface, which is precisely
+    the abuse Supabase's policy exists to prevent. The one echoed value is a
+    document number, hard-sanitised to [A-Z0-9-] and written with textContent.
+
+    Styles are inline and there are no external requests: this renders instantly
+    and completely for a buyer standing in a field on one bar of signal.
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f5f5f5; margin: 0; padding: 24px; color: #333;
+      -webkit-text-size-adjust: 100%;
+    }
+    .card {
+      max-width: 480px; margin: 48px auto; background: #fff;
+      border-radius: 12px; padding: 32px; text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .mark { font-size: 44px; line-height: 1; margin-bottom: 12px; }
+    h1 { font-size: 22px; margin: 0 0 12px; color: #2e7d32; }
+    h1.warn { color: #b26a00; }
+    h1.bad  { color: #b3261e; }
+    p { color: #444; line-height: 1.55; margin: 0 0 8px; font-size: 15px; }
+    .ref { font-size: 13px; color: #777; margin-top: 16px; }
+    .btn {
+      display: inline-block; margin-top: 16px; background: #2e7d32; color: #fff;
+      padding: 12px 24px; text-decoration: none; border-radius: 8px; font-size: 15px;
+    }
+    .foot { max-width: 480px; margin: 0 auto; text-align: center; font-size: 12px; color: #888; }
+    .foot a { color: #2e7d32; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #121212; color: #e6e6e6; }
+      .card { background: #1e1e1e; box-shadow: none; }
+      p { color: #c9c9c9; }
+      h1 { color: #7bc47f; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark" id="mark">•</div>
+    <h1 id="title">Working…</h1>
+    <p id="body"></p>
+    <p id="cta-wrap" hidden><a id="cta" class="btn" href="#"></a></p>
+    <p class="ref" id="ref" hidden></p>
+  </div>
+  <p class="foot">Growing Green · <a href="https://growinggreen.app/support.html">Support</a></p>
+
+  <script>
+  (function () {
+    // status code -> [icon, tone, title, body]. Tones: ok | warn | bad.
+    var M = {
+      // ---- invoice rail (invoice-pay) ----
+      paid_card:      ['✅','ok','Payment received — thank you!','Your card payment went through. You can close this tab.'],
+      paid_ach:       ['🏦','ok','Bank payment started','Your bank payment is on its way. It usually clears in about 4 business days, and the invoice stays open until it does.'],
+      canceled:       ['↩️','warn','Payment canceled','No charge was made. Use the link in your invoice email whenever you’re ready.'],
+      already_paid:   ['✅','ok','This invoice is already paid','Paid in full — thank you! There’s nothing left to do.'],
+      ach_processing: ['⏳','warn','A bank payment is already processing','We’re waiting on a bank payment for this invoice. It usually clears in about 4 business days.'],
+      voided:         ['🚫','warn','This invoice was voided','It is no longer due. Contact the farm with any questions.'],
+      not_open:       ['📄','warn','This invoice isn’t open yet','The farm hasn’t issued it. Contact them with any questions.'],
+      below_minimum:  ['💵','warn','Balance too small to pay by card','The remaining balance is below the card-processing minimum — please settle it directly with the farm.'],
+      unavailable:    ['🔌','warn','Online payment unavailable','This farm isn’t set up to take online payments yet. Contact them to arrange payment.'],
+      ach_not_ready:  ['🏦','warn','Bank payment unavailable','This farm can’t accept bank payments yet. Try paying by card, or contact the farm.'],
+      not_found:      ['🔍','bad','We couldn’t find that invoice','Check the link in your invoice email.'],
+
+      // ---- CSA rail (csa-fix-payment) ----
+      csa_updated:    ['✅','ok','Payment method updated','Your CSA payments will use the new card from now on. You can close this tab.'],
+      csa_canceled:   ['↩️','warn','No changes made','Your payment method is unchanged. Use the link in your CSA email whenever you’re ready.'],
+      csa_not_found:  ['🔍','bad','We couldn’t find that membership','Check the link in your CSA email.'],
+      csa_ended:      ['🚫','warn','This membership has ended','It is no longer active. Contact the farm with any questions.'],
+      csa_no_schedule:['📄','warn','Nothing to update yet','This membership doesn’t have an active payment schedule. Contact the farm with any questions.'],
+      csa_paid_up:    ['🎉','ok','You’re all paid up','There are no upcoming CSA payments on this membership, so there’s nothing to update.'],
+
+      // ---- standing orders (standing-order-confirm) ----
+      so_confirmed:   ['✅','ok','Order confirmed','Thanks! Your delivery is confirmed and the farm has been notified.'],
+      so_skipped:     ['⏭️','ok','Delivery skipped','No problem — we’ve skipped this delivery. Your standing order continues as normal.'],
+      so_cancelled:   ['🚫','warn','Delivery cancelled','This delivery has been cancelled.'],
+      so_closed:      ['⏰','warn','Ordering has closed','The cutoff for this delivery has passed. Contact the farm if you need to make a change.'],
+      so_handled:     ['✅','ok','Already handled','This delivery was handled a moment ago — nothing further to do.'],
+      so_inactive:    ['📄','warn','Standing order inactive','This standing order isn’t active. Contact the farm with any questions.'],
+      so_on_it:       ['👍','ok','The farm is on it','Your request has been passed along.'],
+
+      // ---- order reconfirm (order-reconfirm) ----
+      order_confirmed:['✅','ok','Order confirmed','Thanks! The farm has been notified.'],
+      order_invalid:  ['🔗','bad','That link isn’t valid','It may be missing information or have expired. Check the link in your email.'],
+
+      // ---- generic ----
+      error:          ['⚠️','bad','Something went wrong','Please try the link again, or contact the farm if it keeps happening.'],
+      bad_link:       ['🔗','bad','That link isn’t valid','Use the link from your email.']
+    };
+
+    var q = new URLSearchParams(window.location.search);
+    var entry = M[q.get('s')] || M.error;
+
+    document.getElementById('mark').textContent  = entry[0];
+    var h = document.getElementById('title');
+    h.textContent = entry[2];
+    if (entry[1] === 'warn') h.className = 'warn';
+    if (entry[1] === 'bad')  h.className = 'bad';
+    document.getElementById('body').textContent = entry[3];
+    document.title = entry[2] + ' — Growing Green';
+
+    // Optional document reference (e.g. INV-0004). Hard-sanitised, capped, and
+    // written as TEXT — never markup.
+    var ref = (q.get('ref') || '').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 24);
+    if (ref) {
+      var el = document.getElementById('ref');
+      el.textContent = ref;
+      el.hidden = false;
+    }
+
+    // Optional call-to-action. The LABEL is an enum (never free text) and the
+    // href is allow-listed to our own hosts, so this link can never be pointed
+    // at an attacker's site by editing the URL.
+    var LABELS = { pay_by_card: 'Pay by card instead' };
+    var label = LABELS[q.get('ctaLabel')];
+    var href = q.get('cta');
+    if (label && href) {
+      var ok = false;
+      try {
+        var u = new URL(href);
+        ok = u.protocol === 'https:' &&
+             (u.hostname === 'growinggreen.app' ||
+              u.hostname === 'shop.growinggreen.app' ||
+              /\.supabase\.co$/.test(u.hostname));
+      } catch (e) { ok = false; }
+      if (ok) {
+        var a = document.getElementById('cta');
+        a.href = href;
+        a.textContent = label;
+        document.getElementById('cta-wrap').hidden = false;
+      }
+    }
+  })();
+  </script>
+</body>
+</html>
