@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complete your payment — Growing Green</title>
+  <title>Complete your order — Growing Green</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <meta name="theme-color" content="#228B22">
@@ -61,7 +61,7 @@
     <div class="state" id="loading"><p>Loading your order…</p></div>
 
     <div class="body" id="form" hidden>
-      <h2>Complete your payment</h2>
+      <h2>Complete your order</h2>
       <p class="sub" id="farm-line"></p>
       <div class="order-ref"><span id="order-ref"></span></div>
       <table>
@@ -72,13 +72,20 @@
       <label for="card-element">Card details</label>
       <div id="card-element"></div>
       <div id="card-errors" role="alert"></div>
-      <button class="btn" id="pay-btn" type="button">Save card &amp; confirm</button>
+      <button class="btn" id="pay-btn" type="button">Save my card</button>
       <p class="note" id="note"></p>
     </div>
 
+    <!--
+      "Card saved", NOT "Payment confirmed". Nothing is charged on this page —
+      it confirms a SetupIntent, which stores the card. The charge happens
+      later, at Pick & Capture, for the amount actually picked.
+      Saying "Payment confirmed" here made the real charge look like a SECOND
+      one (founder report 2026-08-02); Stripe only ever had the one.
+    -->
     <div class="state" id="done" hidden>
-      <div style="font-size:48px;margin-bottom:16px">✅</div>
-      <h2>Payment confirmed</h2>
+      <div style="font-size:48px;margin-bottom:16px">💳</div>
+      <h2>Card saved</h2>
       <p id="done-body"></p>
     </div>
 
@@ -177,8 +184,10 @@
         'Your card will not be charged now. It is charged when ' +
         (d.farmName || 'the farm') + ' confirms your order is ready.';
       $('done-body').textContent =
-        'Your card has been saved. ' + (d.farmName || 'The farm') +
-        ' will let you know when your order is ready.';
+        'Your card is saved — you have not been charged yet. ' +
+        (d.farmName || 'The farm') +
+        ' will charge it when your order is picked, for what is actually ' +
+        'picked, and you will get a receipt then.';
 
       var tbody = $('items');
       (d.items || []).forEach(function (it) {
@@ -196,7 +205,7 @@
       });
 
       var btn = $('pay-btn');
-      btn.textContent = 'Save card & confirm — ' + money(d.totalCents);
+      btn.textContent = 'Save my card';
 
       var stripe = Stripe(d.pk, { stripeAccount: d.stripeAccount });
       var card = stripe.elements().create('card', { style: { base: { fontSize: '16px' } } });
@@ -214,7 +223,7 @@
           if (res.error) {
             $('card-errors').textContent = res.error.message;
             btn.disabled = false;
-            btn.textContent = 'Save card & confirm — ' + money(d.totalCents);
+            btn.textContent = 'Save my card';
             return;
           }
           show('done');
