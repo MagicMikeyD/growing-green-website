@@ -140,6 +140,11 @@
     var endpoint = new URL('/functions/v1/payment-checkout', api);
     endpoint.searchParams.set('order', orderId);
     endpoint.searchParams.set('format', 'json');
+    // Prove we hold the SetupIntent secret from the emailed link. The order id
+    // alone used to be enough, which made order details readable to anyone who
+    // learned an id (audit 2026-08-01). Deploy this page BEFORE the function
+    // that starts requiring it, or in-flight links break.
+    endpoint.searchParams.set('secret', secret);
 
     fetch(endpoint.toString(), { headers: { accept: 'application/json' } })
       .then(function (r) { return r.json(); })
