@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your standing order — Growing Green</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <meta name="theme-color" content="#228B22">
+  <!--
+    Confirm / Skip landing page for a standing-order delivery.
+
+    WHY IT LIVES HERE: this page used to be rendered by the
+    standing-order-confirm edge function, but Supabase's gateway serves every
+    HTML response from *.supabase.co/functions/v1/* as text/plain under
+    `CSP: default-src 'none'; sandbox`. The buyer saw raw HTML source with a
+    mangled em-dash and NO working buttons — so a `confirm_required` standing
+    order could never be confirmed, the draft expired at cutoff, and no order
+    was ever placed. That is the "standing orders don't reach the orders
+    rotation" report (2026-08-02): the placement code was fine, the buyer just
+    had no way to say yes. On our own domain there is no such policy.
+
+    NO-JS PATH: the Confirm / Skip buttons are real <form method="post">
+    submissions to the edge function, which 303-redirects to /pay-result. Only
+    the item list needs JavaScript. If the fetch fails we still render the
+    forms, so the buyer can always act.
+
+    SECURITY: order data arrives as JSON and is written with textContent, so a
+    farm or product name containing markup is inert.
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #f5f5f5; color: #333;
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    .container { max-width: 480px; margin: 32px auto; background: #fff; border-radius: 12px;
+                 overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+    .header { background: #2e7d32; padding: 20px; text-align: center; color: #fff;
+              font-size: 20px; font-weight: 700; }
+    .body { padding: 28px 24px; }
+    h2 { text-align: center; margin: 0 0 4px; font-size: 18px; color: #333; }
+    .sub { text-align: center; color: #666; font-size: 14px; margin: 0 0 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 8px; }
+    th { padding: 6px 0; text-align: left; color: #2e7d32; font-weight: 600; border-bottom: 2px solid #2e7d32; }
+    td { padding: 6px 0; border-bottom: 1px solid #e8f5e9; }
+    .total { text-align: right; font-size: 18px; font-weight: 700; color: #2e7d32; margin: 12px 0 4px; }
+    .estimate-note { text-align: right; font-size: 12px; color: #999; margin: 0 0 20px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px;
+           font-weight: 700; color: #fff; background: #2e7d32; cursor: pointer; }
+    .btn-secondary { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 8px;
+                     font-size: 14px; color: #666; background: none; cursor: pointer; margin-top: 10px; }
+    .btn:disabled, .btn-secondary:disabled { opacity: .6; cursor: not-allowed; }
+    .note { text-align: center; font-size: 12px; color: #999; margin-top: 16px; }
+    .footer { background: #f5f5f5; padding: 16px 24px; text-align: center; font-size: 12px;
+              color: #999; border-top: 1px solid #e0e0e0; }
+    .footer a { color: #2e7d32; }
+    .state { text-align: center; padding: 40px 24px; }
+    .state h2 { color: #2e7d32; margin-bottom: 12px; font-size: 20px; }
+    .state p { color: #666; font-size: 15px; line-height: 1.5; margin: 0; }
+    form { margin: 0; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Growing Green</div>
+
+    <div class="state" id="loading"><p>Loading your delivery…</p></div>
+
+    <div class="body" id="main" hidden>
+      <h2 id="heading">Your standing order</h2>
+      <p class="sub" id="deliver-line"></p>
+
+      <table id="items-table" hidden>
+        <thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Est.</th></tr></thead>
+        <tbody id="items"></tbody>
+      </table>
+      <div class="total" id="total" hidden></div>
+      <p class="estimate-note" id="estimate-note" hidden>
+        Estimate only — the final amount is confirmed when the order is invoiced per your terms.
+      </p>
+
+      <!--
+        Real form POSTs, not fetch(): the edge function answers with a 303 to
+        /pay-result, so this works with JavaScript disabled and survives a
+        double-tap (the second POST hits the already-resolved guard and lands on
+        the "already handled" result).
+      -->
+      <form method="post" id="confirm-form">
+        <button type="submit" class="btn" id="confirm-btn">Confirm order</button>
+      </form>
+      <form method="post" id="skip-form">
+        <button type="submit" class="btn-secondary" id="skip-btn">Skip this delivery</button>
+      </form>
+
+      <p class="note">
+        Need different items this week? Skip here, then order from the fresh
+        sheet in your Growing Green account.
+      </p>
+    </div>
+
+    <div class="state" id="oops" hidden>
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <h2 id="oops-title">Something went wrong</h2>
+      <p id="oops-body"></p>
+    </div>
+
+    <div class="footer">
+      Growing Green · <a href="https://growinggreen.app/support.html">Support</a>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    function show(id) {
+      ['loading', 'main', 'oops'].forEach(function (k) { $(k).hidden = (k !== id); });
+    }
+    function fail(title, body) {
+      $('oops-title').textContent = title;
+      $('oops-body').textContent = body;
+      show('oops');
+    }
+    function money(cents) { return '$' + ((cents || 0) / 100).toFixed(2); }
+
+    var q = new URLSearchParams(window.location.search);
+    var draft = q.get('draft');
+    var api = q.get('api');
+
+    // The API base travels in the link so one static page serves both of our
+    // environments. It is pinned to an EXACT list of our own projects.
+    //
+    // ⚠️ DO NOT relax this to a pattern like /\.supabase\.co$/. Anyone can
+    // create a free Supabase project on that domain; a wildcard would let an
+    // attacker craft .../standing-order?api=https://theirs.supabase.co and have
+    // this page — on the real growinggreen.app origin, under our header, with a
+    // valid padlock — POST the buyer's confirmation to THEIR server. Same
+    // invariant as pay.html; that one was caught in review before any customer
+    // saw a payment link.
+    var API_ALLOWED = [
+      'https://zorrzpdfequbymjgocga.supabase.co', // production
+      'https://atocyakoajynffvpeyis.supabase.co'  // staging
+    ];
+    var apiOk = false;
+    try {
+      // Compare the normalised origin, so a userinfo@, port, path or casing
+      // trick cannot smuggle a different host past a string compare.
+      apiOk = API_ALLOWED.indexOf(new URL(api).origin) !== -1;
+    } catch (e) { apiOk = false; }
+
+    var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!draft || !UUID_RE.test(draft) || !apiOk) {
+      fail('That link isn’t valid', 'Use the link from your standing-order email, or contact the farm.');
+      return;
+    }
+
+    var base = new URL('/functions/v1/standing-order-confirm', api);
+    function actionUrl(action) {
+      var u = new URL(base.toString());
+      u.searchParams.set('draft', draft);
+      u.searchParams.set('action', action);
+      return u.toString();
+    }
+    $('confirm-form').action = actionUrl('confirm');
+    $('skip-form').action = actionUrl('skip');
+
+    // Guard against a double submit resubmitting after the 303 has been
+    // requested but before the browser navigates.
+    ['confirm-form', 'skip-form'].forEach(function (id) {
+      $(id).addEventListener('submit', function () {
+        $('confirm-btn').disabled = true;
+        $('skip-btn').disabled = true;
+        $('confirm-btn').textContent = 'Working…';
+      });
+    });
+
+    var infoUrl = new URL(base.toString());
+    infoUrl.searchParams.set('draft', draft);
+    infoUrl.searchParams.set('format', 'json');
+
+    fetch(infoUrl.toString(), { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || d.ok !== true) {
+          // Terminal states (already confirmed, skipped, past cutoff, …) are
+          // answered by the function as a redirect to /pay-result, so reaching
+          // here means a genuine lookup problem.
+          if (d && d.redirect) { window.location.replace(d.redirect); return; }
+          fail('We couldn’t find that delivery', 'Use the link from your standing-order email, or contact the farm.');
+          return;
+        }
+        render(d);
+      })
+      .catch(function () {
+        // Network failure: still show the buttons. Losing the item list is an
+        // inconvenience; losing the ability to confirm means no order gets
+        // placed at all, which is the bug this page exists to fix.
+        $('deliver-line').textContent = 'We couldn’t load the item list — you can still confirm or skip below.';
+        show('main');
+      });
+
+    function render(d) {
+      // Every value below is written as TEXT — a farm or product name
+      // containing markup is displayed, never executed.
+      $('heading').textContent = 'Your ' + (d.farmName || 'farm') + ' order';
+      $('deliver-line').textContent = 'Delivery ' + (d.deliverOn || '');
+
+      var lines = d.lines || [];
+      if (lines.length) {
+        var tbody = $('items');
+        lines.forEach(function (it) {
+          var tr = document.createElement('tr');
+          var name = document.createElement('td');
+          name.textContent = it.name || 'Item';
+          var qty = document.createElement('td');
+          qty.style.textAlign = 'center';
+          qty.textContent = '×' + String(it.quantity == null ? 1 : it.quantity);
+          var price = document.createElement('td');
+          price.style.textAlign = 'right';
+          price.textContent = (it.lineCents == null) ? '—' : money(it.lineCents);
+          tr.appendChild(name); tr.appendChild(qty); tr.appendChild(price);
+          tbody.appendChild(tr);
+        });
+        $('items-table').hidden = false;
+      }
+
+      if (typeof d.estimateCents === 'number') {
+        $('total').textContent = 'Estimated total: ' + money(d.estimateCents);
+        $('total').hidden = false;
+        $('estimate-note').hidden = false;
+      }
+      show('main');
+    }
+  })();
+  </script>
+</body>
+</html>
