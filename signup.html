@@ -214,7 +214,7 @@
           <h2 class="su-h2" id="success-heading">You're in!</h2>
           <p class="su-sub">Signed in as <strong id="success-email"></strong></p>
           <div class="su-status-line" id="success-status"></div>
-          <a class="su-btn" style="display:block;text-align:center;text-decoration:none"
+          <a class="su-btn" id="open-app-link" style="display:block;text-align:center;text-decoration:none"
              href="https://admin.growinggreen.app">Open the Farmer App</a>
           <p class="su-sub" style="margin-top:12px">On your phone? Open
             <strong>admin.growinggreen.app</strong> in your browser and log in — you can add it
@@ -384,7 +384,13 @@
     };
     var ENV_NAME = new URLSearchParams(window.location.search).get('env') === 'staging' ? 'staging' : 'prod';
     var ENV = ENVS[ENV_NAME];
-    if (ENV_NAME === 'staging') { $('su-staging').hidden = false; }
+    if (ENV_NAME === 'staging') {
+      $('su-staging').hidden = false;
+      // Keep the whole loop on ONE backend: a staging-mode signup must hand
+      // off to the STAGING Farmer App, not prod, or accounts/subscriptions
+      // created here are invisible to the app the tester opens next.
+      $('open-app-link').href = 'https://staging.gg-admin-new.pages.dev';
+    }
     // The address the email-confirmation link returns to — keeps the env.
     var PAGE_URL = window.location.origin + '/signup.html' + (ENV_NAME === 'staging' ? '?env=staging' : '');
 
