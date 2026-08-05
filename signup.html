@@ -96,6 +96,10 @@
     .su-staging-banner { background: #e65100; color: #fff; text-align: center; font-weight: 700;
                          padding: 8px; font-size: 14px; letter-spacing: 1px; }
     .su-signout { text-align: center; margin-top: 14px; }
+    .su-identity { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+                   background: #f1f8e9; border: 1px solid #c8e6c9; border-radius: 8px;
+                   padding: 10px 14px; margin: 0 0 16px; font-size: 14px; color: #1b5e20; }
+    .su-identity strong { word-break: break-all; }
     [hidden] { display: none !important; }
 
     /* Comparison table (self-contained copy of the revamp's table styles —
@@ -202,7 +206,13 @@
         <!-- Signed in, no active subscription (fresh or lapsed) -->
         <div id="state-subscribe" hidden>
           <h2 class="su-h2" id="sub-heading">Activate your subscription</h2>
-          <p class="su-sub">Signed in as <strong id="sub-email"></strong></p>
+          <!-- The card below is charged to THIS account. Un-missable identity +
+               switch, learned the hard way: a sticky session let a tester
+               subscribe the wrong one of their two accounts. -->
+          <div class="su-identity">
+            <span>Subscribing as <strong id="sub-email"></strong></span>
+            <button type="button" class="su-link-btn" id="sub-signout">Not you? Switch</button>
+          </div>
           <p class="su-price">$24.99<small>/month</small></p>
           <p class="su-trial" id="sub-trial" hidden>30-day free trial — your card isn't charged until it ends</p>
           <ul class="su-feature-list">
@@ -219,14 +229,16 @@
             <a href="/terms.html">Terms of Service</a>. Cancel anytime from this page.</p>
           <p class="su-note">Part of a farm team? Ask the farm owner to add you as a Manager —
             managers are covered by the farm's subscription and don't need their own.</p>
-          <div class="su-signout"><button type="button" class="su-link-btn" id="sub-signout">Sign out</button></div>
         </div>
 
         <!-- Active subscription (also reused, reworded, for billing-issue statuses) -->
         <div id="state-success" hidden>
           <div class="su-big-emoji" id="success-emoji">🌱</div>
           <h2 class="su-h2" id="success-heading">You're in!</h2>
-          <p class="su-sub">Signed in as <strong id="success-email"></strong></p>
+          <div class="su-identity">
+            <span>This is <strong id="success-email"></strong></span>
+            <button type="button" class="su-link-btn" id="success-signout">Not you? Switch</button>
+          </div>
           <div class="su-status-line" id="success-status"></div>
           <a class="su-btn" id="open-app-link" style="display:block;text-align:center;text-decoration:none"
              href="https://admin.growinggreen.app">Open the Farmer App</a>
@@ -240,7 +252,6 @@
           <div class="su-error" id="manage-error" role="alert"></div>
           <p class="su-note">Next step: open the Farmer App, create your farm, and set up your
             storefront. Your team and customers use the free Worker and Market apps.</p>
-          <div class="su-signout"><button type="button" class="su-link-btn" id="success-signout">Sign out</button></div>
         </div>
 
       </div>
