@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Growing Green</title>
+  <meta name="description" content="Start your 30-day free trial of Growing Green — the all-in-one farm management platform with your own marketplace storefront. $24.99/month, cancel anytime.">
+  <link rel="canonical" href="https://growinggreen.app/signup.html">
+
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#228B22">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://growinggreen.app/signup.html">
+  <meta property="og:title" content="Sign Up — Growing Green">
+  <meta property="og:description" content="Start your 30-day free trial. Farm management, marketplace, and worker tools in one platform — $24.99/month.">
+  <meta property="og:image" content="https://growinggreen.app/farm-sunset.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sign Up — Growing Green">
+  <meta name="twitter:description" content="Start your 30-day free trial. $24.99/month, cancel anytime.">
+  <meta name="twitter:image" content="https://growinggreen.app/farm-sunset.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- TODO: paste Plausible snippet here once signup is complete -->
+  <!-- <script defer data-domain="growinggreen.app" src="https://plausible.io/js/script.js"></script> -->
+
+  <!--
+    The subscription's new home (web-paywall migration, 2026-08-04). The
+    Farmer App's store builds contain no purchase UI — this page is the one
+    billing surface for the $24.99/mo subscription.
+
+    WHY IT LIVES HERE (same reason as pay.html): Supabase's gateway serves
+    HTML from *.supabase.co/functions/v1/* under `CSP: default-src 'none';
+    sandbox`, which blocks Stripe.js outright. On our own domain there is no
+    such policy.
+
+    SECURITY: every dynamic value is written with textContent, never
+    innerHTML. The Supabase URL/anon key pair is chosen from an EXACT
+    two-entry config below (prod default, ?env=staging for testing) — the
+    anon key is public by design; RLS enforces access.
+  -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Page-scoped styles. Deliberately self-contained (pay.html precedent):
+       the signup card must not depend on classes that only exist in a later
+       style.css revision. Later rules here override style.css where equal. */
+    .su-wrap { max-width: 520px; margin: 40px auto 24px; padding: 0 16px; }
+    .su-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,.10);
+               overflow: hidden; }
+    .su-card-head { background: #2e7d32; color: #fff; text-align: center;
+                    padding: 22px 20px; font-size: 21px; font-weight: 700; }
+    .su-card-body { padding: 26px 24px; }
+    .su-tabs { display: flex; border-bottom: 2px solid #e8f5e9; margin-bottom: 20px; }
+    .su-tab { flex: 1; padding: 10px 0; background: none; border: none; font-size: 15px;
+              font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+    .su-tab.active { color: #2e7d32; border-bottom-color: #2e7d32; }
+    .su-field { margin-bottom: 14px; }
+    .su-field label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; }
+    .su-field input { width: 100%; padding: 12px; font-size: 15px; border: 1px solid #ccc;
+                      border-radius: 8px; background: #fff; }
+    .su-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px;
+              font-weight: 700; color: #fff; background: #2e7d32; cursor: pointer; }
+    .su-btn:disabled { background: #a5d6a7; cursor: not-allowed; }
+    .su-btn-secondary { width: 100%; padding: 13px; border: 2px solid #2e7d32; border-radius: 8px;
+                        font-size: 15px; font-weight: 700; color: #2e7d32; background: #fff;
+                        cursor: pointer; margin-top: 10px; }
+    .su-link-btn { background: none; border: none; color: #2e7d32; font-size: 14px;
+                   cursor: pointer; text-decoration: underline; padding: 0; }
+    .su-error { color: #c62828; font-size: 13px; min-height: 18px; margin: 8px 0; }
+    .su-note { font-size: 12px; color: #888; text-align: center; margin-top: 14px; line-height: 1.5; }
+    .su-price { text-align: center; margin: 0 0 6px; font-size: 26px; font-weight: 800; color: #1b5e20; }
+    .su-price small { font-size: 15px; font-weight: 600; color: #666; }
+    .su-trial { text-align: center; color: #2e7d32; font-weight: 600; font-size: 15px; margin: 0 0 16px; }
+    .su-feature-list { list-style: none; padding: 0; margin: 0 0 18px; }
+    .su-feature-list li { padding: 5px 0 5px 26px; position: relative; font-size: 14px; color: #444; }
+    .su-feature-list li::before { content: "✓"; position: absolute; left: 4px; color: #2e7d32; font-weight: 700; }
+    #su-card-element { border: 1px solid #ccc; border-radius: 8px; padding: 12px;
+                       margin-bottom: 12px; background: #fff; }
+    .su-status-line { text-align: center; background: #f1f8e9; border-radius: 8px;
+                      padding: 12px; margin: 14px 0; font-size: 14px; color: #2e7d32; }
+    .su-center { text-align: center; }
+    .su-h2 { text-align: center; margin: 0 0 8px; font-size: 20px; color: #333; }
+    .su-sub { text-align: center; color: #666; font-size: 14px; margin: 0 0 18px; line-height: 1.5; }
+    .su-big-emoji { text-align: center; font-size: 44px; margin-bottom: 10px; }
+    .su-staging-banner { background: #e65100; color: #fff; text-align: center; font-weight: 700;
+                         padding: 8px; font-size: 14px; letter-spacing: 1px; }
+    .su-signout { text-align: center; margin-top: 14px; }
+    [hidden] { display: none !important; }
+
+    /* Comparison table (self-contained copy of the revamp's table styles —
+       push 1 must not depend on the uncommitted style.css revision). */
+    .su-compare { max-width: 900px; margin: 8px auto 48px; padding: 0 16px; }
+    .su-compare h2 { text-align: center; font-size: 24px; color: #1b5e20; margin: 0 0 6px; }
+    .su-compare > p { text-align: center; color: #666; font-size: 14px; margin: 0 0 18px; }
+    .su-compare-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .su-compare-table { border-collapse: collapse; width: 100%; min-width: 680px;
+                        background: #fff; border-radius: 12px; overflow: hidden;
+                        box-shadow: 0 2px 10px rgba(0,0,0,.08); font-size: 14px; }
+    .su-compare-table th, .su-compare-table td { padding: 11px 12px; text-align: left;
+                        border-bottom: 1px solid #eee; vertical-align: top; }
+    .su-compare-table thead th { background: #f1f8e9; color: #1b5e20; font-size: 14px; }
+    .su-compare-table .gg-col { background: #e8f5e9; font-weight: 600; color: #1b5e20; }
+    .su-compare-note { font-size: 12px; color: #999; text-align: center; margin-top: 10px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="su-staging-banner" id="su-staging" hidden>STAGING — TEST MODE, NO REAL CHARGES</div>
+
+  <nav class="site-nav" aria-label="Main">
+    <div class="site-nav-inner">
+      <a class="site-nav-brand" href="/">
+        <img class="site-logo" src="/assets/logo-dark.svg" alt="">
+        <span>Growing Green</span>
+      </a>
+      <button class="site-nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <ul class="site-nav-links" id="primary-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/index.html#pricing">Pricing</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+        <li><a href="/support.html">Support</a></li>
+        <li><a class="nav-cta" href="/signup.html">Sign Up</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <h1>Start your farm's free trial</h1>
+    <p>$24.99/month after a 30-day free trial. Cancel anytime.</p>
+  </section>
+
+  <div class="su-wrap">
+    <div class="su-card">
+      <div class="su-card-head">Growing Green Farmer</div>
+      <div class="su-card-body">
+
+        <div id="state-loading" class="su-center"><p>Loading…</p></div>
+
+        <!-- Account lookup failed: NEVER guess at subscription state (a wrong
+             guess shows an active subscriber the pay-again card) — offer retry. -->
+        <div id="state-error" hidden class="su-center">
+          <div class="su-big-emoji">📡</div>
+          <h2 class="su-h2">Couldn't load your account</h2>
+          <p class="su-sub">Check your connection and try again.</p>
+          <button class="su-btn" id="error-retry" type="button">Try again</button>
+        </div>
+
+        <!-- Signed out: create account / sign in -->
+        <div id="state-auth" hidden>
+          <div class="su-tabs">
+            <button type="button" class="su-tab active" id="tab-create">Create account</button>
+            <button type="button" class="su-tab" id="tab-signin">Sign in</button>
+          </div>
+          <form id="auth-form">
+            <div class="su-field">
+              <label for="auth-email">Email</label>
+              <input id="auth-email" type="email" autocomplete="email" required>
+            </div>
+            <div class="su-field">
+              <label for="auth-password">Password</label>
+              <input id="auth-password" type="password" autocomplete="new-password" minlength="6" required>
+            </div>
+            <div class="su-error" id="auth-error" role="alert"></div>
+            <button class="su-btn" id="auth-btn" type="submit">Create account</button>
+          </form>
+          <p class="su-note">Creating an account is free — your trial starts only after you
+            add a card on the next step. Already use the Farmer App? Sign in with the same login.</p>
+        </div>
+
+        <!-- Post-signup: confirm your email -->
+        <div id="state-confirm" hidden class="su-center">
+          <div class="su-big-emoji">📬</div>
+          <h2 class="su-h2">Check your email</h2>
+          <p class="su-sub">We sent a confirmation link to <strong id="confirm-email"></strong>.
+            The link brings you right back here to finish setting up.</p>
+          <p class="su-note">Nothing arriving? Check spam, or
+            <button type="button" class="su-link-btn" id="confirm-back">try a different email</button>.</p>
+        </div>
+
+        <!-- Signed in, no active subscription (fresh or lapsed) -->
+        <div id="state-subscribe" hidden>
+          <h2 class="su-h2" id="sub-heading">Activate your subscription</h2>
+          <p class="su-sub">Signed in as <strong id="sub-email"></strong></p>
+          <p class="su-price">$24.99<small>/month</small></p>
+          <p class="su-trial" id="sub-trial" hidden>30-day free trial — your card isn't charged until it ends</p>
+          <ul class="su-feature-list">
+            <li>Complete farm management — crops, livestock, fields &amp; beds, inventory, orders</li>
+            <li>Your own marketplace storefront, plus in-person sales</li>
+            <li>Worker time tracking, tasks, and team management</li>
+            <li>Offline-first — keeps working in the field, syncs when you're back</li>
+          </ul>
+          <label class="su-field" for="su-card-element" style="margin-bottom:6px">Card details</label>
+          <div id="su-card-element"></div>
+          <div class="su-error" id="sub-error" role="alert"></div>
+          <button class="su-btn" id="sub-btn" type="button">Start my subscription</button>
+          <p class="su-note">Payments are processed by Stripe. By subscribing you agree to the
+            <a href="/terms.html">Terms of Service</a>. Cancel anytime from this page.</p>
+          <p class="su-note">Part of a farm team? Ask the farm owner to add you as a Manager —
+            managers are covered by the farm's subscription and don't need their own.</p>
+          <div class="su-signout"><button type="button" class="su-link-btn" id="sub-signout">Sign out</button></div>
+        </div>
+
+        <!-- Active subscription (also reused, reworded, for billing-issue statuses) -->
+        <div id="state-success" hidden>
+          <div class="su-big-emoji" id="success-emoji">🌱</div>
+          <h2 class="su-h2" id="success-heading">You're in!</h2>
+          <p class="su-sub">Signed in as <strong id="success-email"></strong></p>
+          <div class="su-status-line" id="success-status"></div>
+          <a class="su-btn" style="display:block;text-align:center;text-decoration:none"
+             href="https://admin.growinggreen.app">Open the Farmer App</a>
+          <p class="su-sub" style="margin-top:12px">On your phone? Open
+            <strong>admin.growinggreen.app</strong> in your browser and log in — you can add it
+            to your home screen like an app. Native apps are coming to the App&nbsp;Store and
+            Google&nbsp;Play.</p>
+          <!-- Store badges: restore with real URLs when the apps are live (same hidden block as index.html). -->
+          <div id="store-badges" hidden></div>
+          <button class="su-btn-secondary" id="manage-btn" type="button">Manage subscription</button>
+          <div class="su-error" id="manage-error" role="alert"></div>
+          <p class="su-note">Next step: open the Farmer App, create your farm, and set up your
+            storefront. Your team and customers use the free Worker and Market apps.</p>
+          <div class="su-signout"><button type="button" class="su-link-btn" id="success-signout">Sign out</button></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Why farmers pick us — the founder wants the comparison on the paywall page -->
+  <section class="su-compare">
+    <h2>How we compare</h2>
+    <p>The tools farmers most often weigh us against, at their published prices.</p>
+    <div class="su-compare-scroll">
+      <table class="su-compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="gg-col">Growing Green</th>
+            <th>Farmbrite</th>
+            <th>Tend</th>
+            <th>Local Line</th>
+            <th>Barn2Door</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Monthly price</td>
+            <td class="gg-col">$24.99 — everything included</td>
+            <td>$59–$109 (Complete)</td>
+            <td>$30–$75</td>
+            <td>$99–$399</td>
+            <td>$99–$299 + $399–$599 setup fee</td>
+          </tr>
+          <tr>
+            <td>What it covers</td>
+            <td class="gg-col">Farm management + storefront + POS + worker app</td>
+            <td>Farm management (store on upper tiers)</td>
+            <td>Crop planning &amp; sales tools</td>
+            <td>Sales &amp; fulfillment only</td>
+            <td>Sales &amp; fulfillment only</td>
+          </tr>
+          <tr>
+            <td>Offline support</td>
+            <td class="gg-col">Built offline-first</td>
+            <td>Partial</td>
+            <td>Web-first</td>
+            <td>Web-first</td>
+            <td>Web-first</td>
+          </tr>
+          <tr>
+            <td>Livestock management</td>
+            <td class="gg-col">Yes — herds, health, yields</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Storefront &amp; local shopper app</td>
+            <td class="gg-col">Included, with local discovery</td>
+            <td>Upper tiers, no shopper app</td>
+            <td>Via Shopify (top tier)</td>
+            <td>Storefront only</td>
+            <td>Storefront only</td>
+          </tr>
+          <tr>
+            <td>In-person POS / tap-to-pay</td>
+            <td class="gg-col">Included — phone is the card reader</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+            <td>POS included</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="su-compare-note">Competitor pricing as of August 2026, from each vendor's public
+      pricing page — check their sites for current figures. Card processing fees apply on every
+      platform, including ours; our 4% royalty applies to card sales only, is capped at
+      $400/month, and never touches cash sales.</p>
+  </section>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="site-footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://admin.growinggreen.app">Farmer App</a></li>
+          <li><a href="https://shop.growinggreen.app">Market App</a></li>
+          <li><a href="https://team.growinggreen.app">Worker App</a></li>
+          <li><a href="/index.html#pricing">Pricing</a></li>
+          <li><a href="/signup.html">Sign Up</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="mailto:hello@growinggreen.app">Contact</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy.html">Privacy Policy</a></li>
+          <li><a href="/terms.html">Terms of Service</a></li>
+          <li><a href="/account-deletion.html">Account Deletion</a></li>
+        </ul>
+      </div>
+      <div class="site-footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="/faq.html">Help &amp; FAQ</a></li>
+          <li><a href="/support.html">Contact Support</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer-bottom">
+      © 2026 Mana Softworks LLC. All rights reserved. Made with care for farmers.
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      var toggle = document.querySelector('.site-nav-toggle');
+      var links = document.getElementById('primary-nav');
+      if (!toggle || !links) return;
+      toggle.addEventListener('click', function() {
+        var open = links.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
+  </script>
+
+  <script>
+  (function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var STATES = ['state-loading', 'state-error', 'state-auth', 'state-confirm', 'state-subscribe', 'state-success'];
+    function show(id) { STATES.forEach(function (k) { $(k).hidden = (k !== id); }); }
+
+    // ── Environment ─────────────────────────────────────────────────────────
+    // EXACT two-entry config: our own projects only, prod is the default.
+    // ?env=staging exists for pre-launch verification (Stripe TEST mode) and
+    // shows an unmissable banner. Anon keys are public by design (they ship
+    // in every app bundle); RLS enforces all access.
+    var ENVS = {
+      prod: {
+        url: 'https://zorrzpdfequbymjgocga.supabase.co',
+        anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnJ6cGRmZXF1YnltamdvY2dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MzM4NjcsImV4cCI6MjA3ODAwOTg2N30.Zyx97FgP2kmi1N8M52mlpsc5d2_cKSyK67gEYs13_JU'
+      },
+      staging: {
+        url: 'https://atocyakoajynffvpeyis.supabase.co',
+        anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0b2N5YWtvYWp5bmZmdnBleWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNTQ1MTEsImV4cCI6MjA4OTkzMDUxMX0.Jv5_Dy57N0RZYY7Ftb3GAlibFU6dpS3Y2AjqANTANXo'
+      }
+    };
+    var ENV_NAME = new URLSearchParams(window.location.search).get('env') === 'staging' ? 'staging' : 'prod';
+    var ENV = ENVS[ENV_NAME];
+    if (ENV_NAME === 'staging') { $('su-staging').hidden = false; }
+    // The address the email-confirmation link returns to — keeps the env.
+    var PAGE_URL = window.location.origin + '/signup.html' + (ENV_NAME === 'staging' ? '?env=staging' : '');
+
+    var sb = window.supabase.createClient(ENV.url, ENV.anon);
+
+    // ── Auth state routing ──────────────────────────────────────────────────
+    // A route() can be triggered while another is in flight (e.g. the direct
+    // boot call races the SIGNED_IN event from the email-confirmation hash).
+    // Never DROP the later trigger — queue one re-run so the final paint always
+    // reflects the newest auth state.
+    var routing = false, routeQueued = false;
+    function route() {
+      if (routing) { routeQueued = true; return; }
+      routing = true;
+      var finish = function () {
+        routing = false;
+        if (routeQueued) { routeQueued = false; route(); }
+      };
+      sb.auth.getSession().then(function (res) {
+        var session = res.data ? res.data.session : null;
+        if (!session) { show('state-auth'); finish(); return; }
+        return loadAccount(session).then(finish);
+      }).catch(function () { show('state-auth'); finish(); });
+    }
+
+    sb.auth.onAuthStateChange(function (event) {
+      // SIGNED_IN also fires on the email-confirmation return (session in the
+      // URL hash — supabase-js picks it up automatically).
+      if (event === 'SIGNED_OUT' && cardEl) cardEl.clear(); // never keep a card across accounts
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') route();
+    });
+
+    $('error-retry').addEventListener('click', function () { route(); });
+
+    // A failed/expired confirmation link arrives as #error=...&error_description=...
+    // — surface it instead of silently landing on the sign-in card.
+    var hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+    var hashErr = hashParams.get('error_description');
+    if (hashErr) {
+      $('auth-error').textContent = hashErr +
+        ' — sign in, or create your account again to get a fresh link.';
+    }
+
+    // ── Account state: subscription + trial eligibility ────────────────────
+    function loadAccount(session) {
+      var email = (session.user && session.user.email) || '';
+      var userId = session.user.id;
+      var subQ = sb.from('subscriptions')
+        .select('status, trial_end, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      var profQ = sb.from('profiles').select('trial_used').eq('id', userId).maybeSingle();
+      return Promise.all([subQ, profQ]).then(function (results) {
+        // supabase-js query builders never REJECT — failures resolve as
+        // {data:null, error}. A failed subscription read must NOT be treated
+        // as "no subscription" (that shows an active subscriber the
+        // pay-again card) — it gets the retry state instead.
+        var subErr = results[0] && results[0].error;
+        var profErr = results[1] && results[1].error;
+        if (subErr) {
+          console.error('[signup] subscriptions read failed', subErr);
+          show('state-error');
+          return;
+        }
+        var subRows = results[0].data || [];
+        var sub = subRows[0] || null;
+        // A failed trial_used read must never PROMISE a trial — assume used;
+        // the server re-clamps from the real value anyway.
+        var trialUsed = profErr ? true : !!(results[1].data && results[1].data.trial_used);
+        if (profErr) console.error('[signup] profiles read failed', profErr);
+        if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
+          renderSuccess(email, sub);
+        } else if (sub && (sub.status === 'past_due' || sub.status === 'unpaid' || sub.status === 'incomplete')) {
+          // Still-live subscription with a collection problem: the remedy is
+          // the billing portal (update the card), NEVER a second subscription.
+          renderBillingIssue(email, sub);
+        } else {
+          renderSubscribe(email, trialUsed, !!sub);
+        }
+      }).catch(function (e) {
+        console.error('[signup] loadAccount', e);
+        show('state-error');
+      });
+    }
+
+    // ── Signed-out card ─────────────────────────────────────────────────────
+    var mode = 'create';
+    function setMode(m) {
+      mode = m;
+      $('tab-create').classList.toggle('active', m === 'create');
+      $('tab-signin').classList.toggle('active', m === 'signin');
+      $('auth-btn').textContent = m === 'create' ? 'Create account' : 'Sign in';
+      $('auth-password').autocomplete = m === 'create' ? 'new-password' : 'current-password';
+      $('auth-error').textContent = '';
+    }
+    $('tab-create').addEventListener('click', function () { setMode('create'); });
+    $('tab-signin').addEventListener('click', function () { setMode('signin'); });
+    $('confirm-back').addEventListener('click', function () { show('state-auth'); });
+
+    $('auth-form').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var email = $('auth-email').value.trim();
+      var password = $('auth-password').value;
+      var btn = $('auth-btn');
+      $('auth-error').textContent = '';
+      btn.disabled = true;
+      var done = function () { btn.disabled = false; };
+      if (mode === 'create') {
+        sb.auth.signUp({ email: email, password: password, options: { emailRedirectTo: PAGE_URL } })
+          .then(function (res) {
+            done();
+            if (res.error) { $('auth-error').textContent = res.error.message; return; }
+            // Existing CONFIRMED email: Supabase anti-enumeration returns a
+            // fake user with EMPTY identities and sends nothing — promising
+            // "check your email" there is a dead end. Route to sign-in.
+            // (Existing UNCONFIRMED users get identities + a real re-send.)
+            if (res.data && res.data.user && Array.isArray(res.data.user.identities) &&
+                res.data.user.identities.length === 0) {
+              setMode('signin'); // clears auth-error, so set the message after
+              $('auth-error').textContent =
+                'You already have an account with this email — enter your password to sign in.';
+              return;
+            }
+            if (res.data && res.data.session) { route(); return; } // confirmations off
+            $('confirm-email').textContent = email;
+            show('state-confirm');
+          });
+      } else {
+        sb.auth.signInWithPassword({ email: email, password: password })
+          .then(function (res) {
+            done();
+            if (res.error) { $('auth-error').textContent = res.error.message; return; }
+            route();
+          });
+      }
+    });
+
+    // ── Subscribe card (fresh + lapsed) ─────────────────────────────────────
+    var stripe = null, cardEl = null, currentEmail = '', trialEligible = false;
+
+    function ensureStripe() {
+      if (stripe) return Promise.resolve();
+      return fetch(ENV.url + '/functions/v1/get-stripe-config')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.publishableKey) throw new Error('no publishable key');
+          stripe = Stripe(d.publishableKey); // platform account — no stripeAccount here
+          cardEl = stripe.elements().create('card', { style: { base: { fontSize: '16px' } } });
+          cardEl.mount('#su-card-element');
+          cardEl.on('change', function (e) {
+            $('sub-error').textContent = e.error ? e.error.message : '';
+          });
+        });
+    }
+
+    function renderSubscribe(email, trialUsed, lapsed) {
+      currentEmail = email;
+      trialEligible = !trialUsed;
+      $('sub-email').textContent = email;
+      $('sub-heading').textContent = lapsed ? 'Reactivate your subscription' : 'Activate your subscription';
+      $('sub-trial').hidden = !trialEligible;
+      var btn = $('sub-btn');
+      btn.textContent = trialEligible ? 'Start my 30-day free trial' : 'Start my subscription';
+      // Disabled until the payment form is actually ready — a click before the
+      // Stripe config resolves would otherwise be a silent no-op — and re-enabled
+      // on EVERY paint (a previous success in this session left it disabled).
+      btn.disabled = true;
+      show('state-subscribe');
+      ensureStripe().then(function () {
+        btn.disabled = false;
+      }).catch(function (e) {
+        console.error('[signup] stripe init', e);
+        $('sub-error').textContent = 'Couldn’t load the payment form. Refresh the page to try again.';
+      });
+    }
+
+    $('sub-signout').addEventListener('click', function () { sb.auth.signOut(); });
+
+    $('sub-btn').addEventListener('click', function () {
+      var btn = $('sub-btn');
+      if (!stripe || !cardEl) return;
+      btn.disabled = true;
+      btn.textContent = 'Processing…';
+      $('sub-error').textContent = '';
+      var restore = function (msg) {
+        if (msg) $('sub-error').textContent = msg;
+        btn.disabled = false;
+        btn.textContent = trialEligible ? 'Start my 30-day free trial' : 'Start my subscription';
+      };
+
+      sb.functions.invoke('create-subscription', { body: { trial: trialEligible ? 30 : 0 } })
+        .then(function (res) {
+          if (res.error || !res.data || !res.data.client_secret) {
+            throw new Error('create-subscription failed');
+          }
+          var clientSecret = res.data.client_secret;
+          return stripe.confirmCardSetup(clientSecret, {
+            payment_method: { card: cardEl, billing_details: { email: currentEmail } }
+          }).then(function (setupRes) {
+            if (setupRes.error) { restore(setupRes.error.message); return; }
+            // Server re-clamps the trial from profiles.trial_used — this value
+            // is a request, not a decision (trust boundary unchanged).
+            return sb.functions.invoke('complete-subscription', {
+              body: { client_secret: clientSecret, trial: trialEligible ? 30 : 0 }
+            }).then(function (compRes) {
+              if (compRes.error) {
+                console.error('[signup] complete-subscription', compRes.error);
+                // The response may have been LOST after the server finished —
+                // re-check first (route() lands on the success card if the
+                // subscription exists). Retrying is safe: the server reuses an
+                // existing live subscription instead of creating a second one.
+                restore('Activation didn’t finish. If your card was accepted your ' +
+                        'subscription will appear in a moment — otherwise try again.');
+                route();
+                return;
+              }
+              // Best-effort invoice email — never blocks the success path.
+              sb.functions.invoke('send-subscription-invoice', {
+                body: { email: currentEmail, trial_days: trialEligible ? 30 : 0 }
+              }).catch(function () {});
+              route();
+            });
+          });
+        })
+        .catch(function (e) {
+          console.error('[signup] subscribe', e);
+          restore('Something went wrong starting your subscription. Please try again.');
+        });
+    });
+
+    // ── Success card ────────────────────────────────────────────────────────
+    function renderSuccess(email, sub) {
+      $('success-email').textContent = email;
+      $('success-emoji').textContent = '🌱';
+      $('success-heading').textContent = "You're in!";
+      var line;
+      if (sub.status === 'trialing' && sub.trial_end) {
+        var end = new Date(sub.trial_end);
+        line = 'Free trial active — your card is first charged on ' +
+          end.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '.';
+      } else {
+        line = 'Subscription active — $24.99/month.';
+      }
+      $('success-status').textContent = line;
+      show('state-success');
+    }
+
+    // A live subscription with a collection problem (past_due/unpaid/incomplete):
+    // the fix is a new card in the billing portal — Stripe then retries and the
+    // status returns to active on its own. Reuses the success card so the
+    // portal button is reachable (it lives only in that state).
+    function renderBillingIssue(email, sub) {
+      $('success-email').textContent = email;
+      $('success-emoji').textContent = '💳';
+      $('success-heading').textContent = 'Fix your billing';
+      $('success-status').textContent =
+        'We couldn’t collect your latest payment (status: ' + sub.status + '). ' +
+        'Update your card via Manage subscription below — your subscription resumes ' +
+        'automatically once payment succeeds.';
+      show('state-success');
+    }
+
+    $('success-signout').addEventListener('click', function () { sb.auth.signOut(); });
+
+    $('manage-btn').addEventListener('click', function () {
+      var btn = $('manage-btn');
+      btn.disabled = true;
+      $('manage-error').textContent = '';
+      sb.auth.getSession().then(function (res) {
+        var session = res.data ? res.data.session : null;
+        if (!session) { btn.disabled = false; show('state-auth'); return; }
+        return sb.functions.invoke('create-billing-portal', {
+          body: { user_id: session.user.id, app_origin: PAGE_URL }
+        }).then(function (r) {
+          btn.disabled = false;
+          if (r.error || !r.data || !r.data.url) {
+            $('manage-error').textContent = 'Couldn’t open the billing portal. Please try again.';
+            return;
+          }
+          window.location.href = r.data.url;
+        });
+      }).catch(function () {
+        btn.disabled = false;
+        $('manage-error').textContent = 'Couldn’t open the billing portal. Please try again.';
+      });
+    });
+
+    // Initial paint: INITIAL_SESSION from onAuthStateChange also calls route();
+    // calling it directly too keeps the page working if that event never fires.
+    route();
+  })();
+  </script>
+</body>
+</html>
