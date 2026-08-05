@@ -18,11 +18,11 @@
   <meta property="og:url" content="https://growinggreen.app/">
   <meta property="og:title" content="Growing Green — Farm Management & Marketplace">
   <meta property="og:description" content="Offline-first farm management, voice-enabled field logging, and a built-in marketplace. Built for small and mid-size farms.">
-  <meta property="og:image" content="https://growinggreen.app/farm-sunset.jpg">
+  <meta property="og:image" content="https://growinggreen.app/assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Growing Green — Farm Management & Marketplace">
   <meta name="twitter:description" content="Offline-first farm management, voice-enabled field logging, and a built-in marketplace.">
-  <meta name="twitter:image" content="https://growinggreen.app/farm-sunset.jpg">
+  <meta name="twitter:image" content="https://growinggreen.app/assets/og-image.jpg">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,7 +81,19 @@
   }
   </script>
 </head>
-<body>
+<body class="gg-cinema">
+
+  <!-- Intro video overlay: plays once per visitor, muted, with Skip.
+       Ends on the exact frame used as the site background, so the fade-out
+       is seamless. Auto-skipped for prefers-reduced-motion, Save-Data,
+       autoplay-blocked, or slow-loading situations. -->
+  <div id="gg-intro" hidden>
+    <video id="gg-intro-video" muted playsinline preload="auto" poster="/assets/intro-poster.jpg" aria-hidden="true">
+      <source src="/assets/intro.mp4" type="video/mp4">
+    </video>
+    <button id="gg-intro-skip" type="button">Skip intro ›</button>
+  </div>
+
   <nav class="site-nav" aria-label="Main">
     <div class="site-nav-inner">
       <a class="site-nav-brand" href="/">
@@ -95,15 +107,18 @@
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="/faq.html">FAQ</a></li>
         <li><a href="/support.html">Support</a></li>
-        <li><a class="nav-cta" href="#waitlist">Join Waitlist</a></li>
+        <li><a class="nav-cta" href="/signup.html">Sign Up</a></li>
       </ul>
     </div>
   </nav>
 
-  <header>
-    <h1>Growing Green</h1>
-    <p>Farm management and marketplace software for farmers and entrepreneurs.</p>
-    <a href="#waitlist" class="download cta-large hero-cta">Join the Waitlist — 30-day free trial</a>
+  <!-- Cinematic hero: the "Growing Green" wordmark is part of the frozen
+       video frame behind this section, so the hero itself stays minimal. -->
+  <header class="cinema-hero">
+    <h1 class="sr-only">Growing Green — Farm Management &amp; Marketplace</h1>
+    <p class="cinema-tagline">Farm management and marketplace software for farmers and entrepreneurs.</p>
+    <a href="/signup.html" class="download cta-large hero-cta">Start your 30-day free trial</a>
+    <span class="cinema-scroll-hint" aria-hidden="true">Scroll ↓</span>
   </header>
 
   <div class="trust-strip">
@@ -180,8 +195,78 @@
     </div>
   </section>
 
-  <section class="features-header">
+  <section class="features-header" id="features">
     <h2>Features</h2>
+  </section>
+
+  <section class="feature-grid-section">
+    <div class="feature-grid-container">
+      <p class="feature-grid-intro">One subscription runs the whole operation — planning, growing, selling, and paying the people who make it happen.</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">📡</div>
+          <h3>Offline-first everything</h3>
+          <p>Log it in the field with zero bars. Everything syncs itself when you're back in range — no spinners, no lost work.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🎙️</div>
+          <h3>Voice notes &amp; commands</h3>
+          <p>Talk instead of type. Capture field logs hands-free and drive the app by voice while yours are full.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🌱</div>
+          <h3>Crops → harvest → inventory</h3>
+          <p>Plan a crop once and the harvest schedule, completion log, and sellable inventory update themselves down the chain.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">📊</div>
+          <h3>Crop estimates &amp; projected revenue</h3>
+          <p>Yield and revenue projections from 68 crop profiles, tuned by your local climate — before the seed hits dirt.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🛰️</div>
+          <h3>Fields &amp; beds on satellite</h3>
+          <p>Draw your fields and beds on real aerial imagery, then track plantings, photos, and revenue bed by bed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🐄</div>
+          <h3>Livestock, herds &amp; health</h3>
+          <p>Individual animals or whole flocks: registry, groups, health events with withdrawal tracking, and production yields that flow into inventory.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🍄</div>
+          <h3>Microgreens &amp; mushrooms</h3>
+          <p>Purpose-built workflows for trays, substrates, and succession cycles — not row-crop features squeezed sideways.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🫙</div>
+          <h3>Value-added products</h3>
+          <p>Turn harvests into jams, soaps, and salsas with production logs, input costs rolled up, and listings ready to sell.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🛒</div>
+          <h3>Your own storefront</h3>
+          <p>A real online store on the Market app, where local shoppers discover farms near them — pre-orders, pickup, and delivery included.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">📲</div>
+          <h3>In-person sales &amp; tap-to-pay</h3>
+          <p>Farmers-market checkout on your phone: tap-to-pay cards, itemized receipts, and cash sales tracked for the books.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">👷</div>
+          <h3>Free worker app</h3>
+          <p>Unlimited workers at no extra cost — GPS clock-in/out, task boards, and timesheets that flow back to you.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🤖</div>
+          <h3>AI farm insights</h3>
+          <p>Ask questions about your own operation and get a daily digest of what needs attention — included, not an add-on.</p>
+        </div>
+      </div>
+      <p class="feature-more">…and QR traceability labels, pre-orders with ready dates, revenue &amp; payout dashboards, custom themes with a polished dark mode, and apps that install anywhere — phone, tablet, or desktop.</p>
+      <p class="feature-coming"><strong>On the workbench:</strong> Wholesale &amp; B2B invoicing · CSA shares · Co-op tools · Full accounting &amp; tax exports</p>
+    </div>
   </section>
 
   <section class="farmer-app-showcase">
@@ -255,66 +340,170 @@
 
   <div class="section-divider"></div>
 
-  <section class="comparison-section">
-    <div class="comparison-container">
-      <h2>Why Growing Green vs the alternatives</h2>
-      <p>Honest comparison against the two farm/operations tools we hear about most often.</p>
-      <table class="comparison-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th class="gg-col">Growing Green</th>
-            <th>Farmbrite</th>
-            <th>SafetyCulture</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Monthly price</td>
-            <td class="gg-col">$24.99</td>
-            <td>$59</td>
-            <td>~$50 / user</td>
-          </tr>
-          <tr>
-            <td>Offline support</td>
-            <td class="gg-col">Full (built offline-first)</td>
-            <td>Limited</td>
-            <td>Limited</td>
-          </tr>
-          <tr>
-            <td>Marketplace included</td>
-            <td class="gg-col">Yes</td>
-            <td>No</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td>Voice field logging</td>
-            <td class="gg-col">Yes</td>
-            <td>No</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td>Worker / employee app</td>
-            <td class="gg-col">Free, included</td>
-            <td>Add-on</td>
-            <td>Add-on</td>
-          </tr>
-          <tr>
-            <td>Transaction model</td>
-            <td class="gg-col">4% royalty, capped at $400/mo</td>
-            <td>N/A</td>
-            <td>N/A</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="comparison-note">Pricing reflects publicly listed plans at time of writing. Cash sales on Growing Green are tracked for bookkeeping but excluded from the royalty.</p>
+  <section class="selling-points-section">
+    <div class="selling-points-container">
+      <h2>Why farmers pick Growing Green</h2>
+      <div class="selling-points-grid">
+        <div class="selling-point">
+          <strong>One platform, one price.</strong>
+          <span>$24.99/month covers management, your storefront, and the worker app. No per-user fees, no feature tiers, no setup fee, no contract.</span>
+        </div>
+        <div class="selling-point">
+          <strong>Offline is the default, not a promise.</strong>
+          <span>Built offline-first from day one — barn wifi optional. Most tools bolt this on later; we started here.</span>
+        </div>
+        <div class="selling-point">
+          <strong>We only win when you win.</strong>
+          <span>4% on card sales through your storefront, capped at $400/month. Cash sales are always free — tracked for your books, never charged.</span>
+        </div>
+        <div class="selling-point">
+          <strong>No app-store tax in your price.</strong>
+          <span>Subscriptions run through our website, so 30% store commissions never get baked into what you pay.</span>
+        </div>
+        <div class="selling-point">
+          <strong>Support is the guy who built it.</strong>
+          <span>No ticket queue, no chatbot maze. The founder answers — <a href="/about.html">and he has a farmer's tan to prove it</a>.</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Testimonials section removed 2026-07-01: the drafted quotes used invented
-       names/farms (FTC endorsement risk). Markup template preserved in
-       WEBSITE_ROADMAP.md — restore only with REAL beta-farmer quotes and written
-       permission to use their name/farm. -->
+  <div class="section-divider"></div>
+
+  <section class="founder-blurb-section">
+    <div class="founder-blurb-card">
+      <img class="founder-blurb-photo" src="/assets/founder-mikey.jpg" alt="Mikey Floyd, founder of Mana Softworks, leaning on a rake at the farm" loading="lazy" width="220" height="220">
+      <div class="founder-blurb-text">
+        <h2>Built by the man with a farmer's tan</h2>
+        <p>Over a decade fixing diesels, now building software for farmers full time — and farming too, right here in the Upstate. Every line of Growing Green was written by one guy who also answers the support email. Specialist in T.C.O.B.: Taking Care of Business.</p>
+        <a class="showcase-cta" href="/about.html">Meet Mikey →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials-section testimonial-solo">
+    <div class="testimonials-container">
+      <h2>What farmers are saying</h2>
+      <div class="testimonial-card testimonial-card-solo">
+        <p class="testimonial-quote">"It's such a powerful tool, bro. You're like a magician!"</p>
+        <div class="testimonial-attribution">
+          <div class="testimonial-avatar" aria-hidden="true">NV</div>
+          <div class="testimonial-meta"><strong>Nathan Vannette</strong> The farm Growing Green was built on · Upstate, South Carolina</div>
+        </div>
+      </div>
+      <p class="testimonial-note">More farmer stories on the way — this one's from where it all started.</p>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="comparison-section">
+    <div class="comparison-container">
+      <h2>Why Growing Green vs the alternatives</h2>
+      <p>An honest look at the tools farmers most often compare us to — the management platforms (Farmbrite, Tend) and the sell-your-harvest platforms (Local Line, Barn2Door). Growing Green is the only one that's both.</p>
+      <div class="comparison-scroll">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="gg-col">Growing Green</th>
+              <th>Farmbrite</th>
+              <th>Tend</th>
+              <th>Local Line</th>
+              <th>Barn2Door</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Monthly price</td>
+              <td class="gg-col">$24.99 — everything included</td>
+              <td>$59–$109 (Complete)</td>
+              <td>$30–$75</td>
+              <td>$99–$399</td>
+              <td>$99–$299 + $399–$599 setup fee</td>
+            </tr>
+            <tr>
+              <td>What it covers</td>
+              <td class="gg-col">Farm management + storefront + POS + worker app</td>
+              <td>Farm management (store on upper tiers)</td>
+              <td>Crop planning &amp; sales tools</td>
+              <td>Sales &amp; fulfillment only</td>
+              <td>Sales &amp; fulfillment only</td>
+            </tr>
+            <tr>
+              <td>Offline support</td>
+              <td class="gg-col">Built offline-first</td>
+              <td>Partial</td>
+              <td>Web-first</td>
+              <td>Web-first</td>
+              <td>Web-first</td>
+            </tr>
+            <tr>
+              <td>Livestock management</td>
+              <td class="gg-col">Yes — herds, health, yields</td>
+              <td>Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Storefront &amp; local shopper app</td>
+              <td class="gg-col">Included, with local discovery</td>
+              <td>Upper tiers, no shopper app</td>
+              <td>Via Shopify (top tier)</td>
+              <td>Storefront only</td>
+              <td>Storefront only</td>
+            </tr>
+            <tr>
+              <td>In-person POS / tap-to-pay</td>
+              <td class="gg-col">Included — phone is the card reader</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td>POS included</td>
+            </tr>
+            <tr>
+              <td>Worker time-clock app</td>
+              <td class="gg-col">Free, unlimited workers</td>
+              <td>Timesheets on Premium</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Voice field logging</td>
+              <td class="gg-col">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>AI insights</td>
+              <td class="gg-col">Included</td>
+              <td>No</td>
+              <td>AI credits by tier</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Platform commission</td>
+              <td class="gg-col">4% on card sales, capped at $400/mo — cash is free</td>
+              <td>None</td>
+              <td>None</td>
+              <td>None</td>
+              <td>None</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="comparison-note">Public pricing and published features as of August 2026 — check each vendor's site for current plans; most offer discounts. Standard card processing (~2.9% + 30¢) applies on every platform, including ours. Growing Green's 4% royalty applies only to card sales through your storefront and stops entirely at $400/month.</p>
+    </div>
+  </section>
+
+  <!-- Testimonials: restored 2026-08-05 with a REAL quote (Nathan Vannette,
+       used with permission). Add more cards only with real quotes + written
+       permission — 3-card grid template preserved in WEBSITE_ROADMAP.md. -->
 
   <div class="section-divider"></div>
 
@@ -328,6 +517,7 @@
           <h3>Farmer App (Admin)</h3>
           <p class="price">$24.99/month</p>
           <p>Includes a 30-day free trial. Plus 4% royalty on Stripe-processed marketplace sales, capped at $400/month per farm. Cash sales are not subject to the royalty.</p>
+          <a href="/signup.html" class="download">Start your free trial</a>
         </div>
         <div class="tier">
           <h3>Market App</h3>
@@ -345,7 +535,7 @@
       <p>Growing Green is built to reduce overhead and boost efficiency for small farms and entrepreneurs. The subscription covers unlimited access to management tools, offline sync, and AI features (coming soon), while royalties ensure we only succeed when you do — aligning our goals with yours.</p>
 
       <h3>Lower Than Competitors</h3>
-      <p>Comparable farm management software like Farmbrite ($59/month) or SafetyCulture (~$50/month per user) often costs 25–50% more. We offer similar or better features at a fraction of the price, making advanced agtech accessible without breaking the bank.</p>
+      <p>Comparable farm management software like Farmbrite ($59–$109/month for crops + livestock) or Tend ($30–$75/month, crops only) costs more for less coverage — and the farm sales platforms (Local Line at $99+, Barn2Door at $99+ plus a setup fee) don't manage the farm at all. We cover the whole operation at a fraction of the price.</p>
 
       <h3>Tax Deductible</h3>
       <p>For U.S. businesses, software subscriptions like the Farmer App are fully deductible as ordinary business expenses. Royalties on sales may also qualify as deductible costs — consult your tax advisor for details.</p>
@@ -367,7 +557,7 @@
       </details>
       <details class="faq-item">
         <summary>Who owns my data?</summary>
-        <p>You do. Always. You can export your data as CSV at any time, and if you delete your account it's purged from active storage within 30 days.</p>
+        <p>You do. Always. You can export your data at any time, and if you delete your account it's purged from active storage within 30 days.</p>
       </details>
       <p class="faq-see-all"><a href="/faq.html">See all questions →</a></p>
     </div>
@@ -377,8 +567,8 @@
 
   <section id="waitlist" class="waitlist-section">
     <div class="waitlist-container">
-      <h2>Join the Waitlist</h2>
-      <p>Be the first to know when Growing Green launches. Every new farmer gets a <strong>30-day free trial</strong> to get growing.</p>
+      <h2>Not ready yet? Join the list</h2>
+      <p>Get launch news and early-access invites. Every new farmer gets a <strong>30-day free trial</strong> to get growing.</p>
 
       <form id="waitlist-form" class="waitlist-form">
         <div class="form-row">
@@ -417,6 +607,7 @@
           <li><a href="https://shop.growinggreen.app">Market App</a></li>
           <li><a href="https://team.growinggreen.app">Worker App</a></li>
           <li><a href="#pricing">Pricing</a></li>
+          <li><a href="/signup.html">Sign Up</a></li>
         </ul>
       </div>
       <div class="site-footer-col">
@@ -447,6 +638,50 @@
       © 2026 Mana Softworks LLC. All rights reserved. Made with care for farmers.
     </div>
   </footer>
+
+  <script>
+    // Intro video: play once per visitor, then hand off to the identical
+    // freeze-frame background. Skipped automatically for reduced-motion,
+    // Save-Data, blocked autoplay, or a slow-loading video.
+    (function() {
+      var KEY = 'gg_intro_seen_v1';
+      var ov = document.getElementById('gg-intro');
+      if (!ov) return;
+      try {
+        var conn = navigator.connection || {};
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Portrait phones skip straight to the freeze-frame background:
+        // the square video would cover-crop the wordmark, and skipping
+        // saves ~2.7MB of mobile data. (Doesn't set the seen-flag, so a
+        // desktop visit still gets the intro.)
+        var portraitPhone = window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 820px)').matches;
+        if (localStorage.getItem(KEY) || reduced || conn.saveData || portraitPhone) { ov.remove(); return; }
+      } catch (e) { ov.remove(); return; }
+
+      var vid = document.getElementById('gg-intro-video');
+      var done = false;
+      function finish() {
+        if (done) return;
+        done = true;
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        document.documentElement.classList.remove('gg-intro-lock');
+        ov.classList.add('gg-intro-out');
+        setTimeout(function() { ov.remove(); }, 950);
+      }
+
+      ov.hidden = false;
+      document.documentElement.classList.add('gg-intro-lock');
+      document.getElementById('gg-intro-skip').addEventListener('click', finish);
+      vid.addEventListener('ended', finish);
+      vid.addEventListener('error', finish);
+      var p = vid.play();
+      if (p && p.catch) { p.catch(finish); }
+      // If it hasn't actually started playing within 3s, don't hold the page hostage.
+      setTimeout(function() { if (vid.paused || vid.readyState < 2) finish(); }, 3000);
+      // Absolute backstop.
+      setTimeout(finish, 14000);
+    })();
+  </script>
 
   <script>
     // Mobile nav toggle

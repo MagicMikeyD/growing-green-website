@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About — Growing Green</title>
-  <meta name="description" content="Growing Green is built by Mana Softworks LLC for small and mid-size farms. Meet the team, the mission, and where we're headed.">
+  <meta name="description" content="Growing Green is built by the man with a farmer's tan — a diesel-tech-turned-developer who farms in the Upstate and answers the support email himself.">
   <link rel="canonical" href="https://growinggreen.app/about.html">
 
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
@@ -15,12 +15,12 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://growinggreen.app/about.html">
   <meta property="og:title" content="About — Growing Green">
-  <meta property="og:description" content="Built by Mana Softworks LLC for small and mid-size farms. Meet the team, the mission, and where we're headed.">
-  <meta property="og:image" content="https://growinggreen.app/farm-sunset.jpg">
+  <meta property="og:description" content="Built by the man with a farmer's tan. Diesel tech for a decade, farmer in the Upstate, and the one guy who writes — and supports — every line of Growing Green.">
+  <meta property="og:image" content="https://growinggreen.app/assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="About — Growing Green">
-  <meta name="twitter:description" content="Built by Mana Softworks LLC for small and mid-size farms.">
-  <meta name="twitter:image" content="https://growinggreen.app/farm-sunset.jpg">
+  <meta name="twitter:description" content="Built by the man with a farmer's tan.">
+  <meta name="twitter:image" content="https://growinggreen.app/assets/og-image.jpg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,8 +29,24 @@
 
   <!-- TODO: paste Plausible snippet here once signup is complete -->
   <!-- <script defer data-domain="growinggreen.app" src="https://plausible.io/js/script.js"></script> -->
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Mikey Floyd",
+    "jobTitle": "Founder",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Mana Softworks LLC",
+      "url": "https://growinggreen.app"
+    },
+    "image": "https://growinggreen.app/assets/founder-mikey.jpg",
+    "description": "Diesel technician for over a decade, now building farm software full time and farming in Upstate South Carolina."
+  }
+  </script>
 </head>
-<body>
+<body class="gg-cinema">
   <nav class="site-nav" aria-label="Main">
     <div class="site-nav-inner">
       <a class="site-nav-brand" href="/">
@@ -44,32 +60,28 @@
         <li><a href="/index.html#pricing">Pricing</a></li>
         <li><a href="/faq.html">FAQ</a></li>
         <li><a href="/support.html">Support</a></li>
-        <li><a class="nav-cta" href="/index.html#waitlist">Join Waitlist</a></li>
+        <li><a class="nav-cta" href="/signup.html">Sign Up</a></li>
       </ul>
     </div>
   </nav>
 
-  <section class="page-hero">
-    <h1>Built by farmers, for farmers</h1>
-    <p>Modern farm software shouldn't be a luxury.</p>
+  <section class="page-hero page-hero-cinema">
+    <h1>Built by the man with a farmer's tan</h1>
+    <p>Diesel by trade. Farmer by choice. Software so it all runs on time.</p>
   </section>
 
   <main class="about-section">
     <div class="about-container">
-      <p style="font-size:1.1em; max-width:720px; margin:20px auto 30px; text-align:center; color:#444;">
-        <!-- TODO: replace placeholder backstory with Mikey's actual founder note -->
-        Growing Green started because the tools available to small farms either felt built for industrial agriculture or felt built for hobbyists. Nothing in between. We're a small team focused on making the most powerful farm management software accessible to operations of any size — without the upcharges, hidden fees, or app-store middlemen.
-      </p>
 
-      <h2>The team</h2>
-      <div class="founder-card">
-        <!-- TODO: replace gradient initial with /assets/founder-mikey.jpg headshot -->
-        <div class="founder-photo" aria-hidden="true">M</div>
+      <h2>The man himself</h2>
+      <div class="founder-card founder-card-photo">
+        <img class="founder-photo-img" src="/assets/founder-mikey.jpg" alt="Mikey Floyd leaning on a rake beside the tool shed, squinting into the middle distance like a man who has seen weeds and defeated them" width="220" height="220">
         <div class="founder-bio">
           <strong>Mikey Floyd</strong>
-          <em>Founder, Mana Softworks LLC</em>
-          <!-- TODO: replace placeholder bio with Mikey's real founder note (3–4 sentences) -->
-          <p>Mikey founded Mana Softworks to build tools the farming community has been asking for. Growing Green is the first product — a single platform connecting farmers, customers, and workers with offline-first software that respects the way farms actually run.</p>
+          <em>Founder, Mana Softworks LLC · Specialist in T.C.O.B. (Taking Care of Business)</em>
+          <p>I spent over a decade as a diesel technician — if it rolled, hauled, or refused to start at 5 a.m., I fixed it. These days I build software for farmers full time, and I farm, working for Nathan Vannette. It's a local situation here in the Upstate: real dirt, real sweat, and a tan line to prove it.</p>
+          <p>I was also the "winner" of the 1995 Cutest Baby contest in PA. Actually, I was runner-up — but it was pretty close, and I suspect the other baby cheated. Stolen, so true!</p>
+          <p>Growing Green was originally built for Nate and his farm. Somewhere between the Spring Zing salad and the fire ant bites, it got obvious it could help a lot more farms than one. Every line of it was written by me — no dev team, no offshore ticket queue. I handle the app and I handle its customers, so if you've got complaining and whining to do, I'm the guy to see. Compliments also accepted, I guess, if that's your thing. Usually with less paperwork.</p>
         </div>
       </div>
 
@@ -78,7 +90,7 @@
         <div class="mission-card">
           <div class="mission-icon" aria-hidden="true">🌱</div>
           <h3>Empower farmers with tools</h3>
-          <p>Modern software shouldn't be a luxury. Every farm deserves the same operating system as the largest operations.</p>
+          <p>Modern software shouldn't be a luxury. Every farm deserves the same care as the largest operations. Farms are the backbone of any society and don't get the recognition and the occasional helping hand they deserve. That stops here!</p>
         </div>
         <div class="mission-card">
           <div class="mission-icon" aria-hidden="true">🤝</div>
@@ -94,14 +106,14 @@
 
       <h2>Where we're headed</h2>
       <p style="max-width:720px; margin:0 auto 20px;">
-        Growing Green is shipping in expansion packs — small, focused releases that add depth without bloating the apps. The Livestock Pack is in beta now. Co-op tools are next, followed by Operations (field mapping, weather, equipment), Financials (P&amp;L, tax exports), and a full marketplace with wholesale and B2B. AI assistance — pest detection, yield forecasting, smart irrigation — comes later, opt-in. We don't promise dates. We do promise a small, reasonable platform that grows with your farm.
+        Growing Green is shipping in expansion packs — small, focused releases that add depth without bloating the apps. The Livestock Pack is in beta now. Co-op tools are next, followed by Operations (field mapping, weather, equipment), Financials (P&amp;L, tax exports), and a full marketplace with wholesale and B2B. AI assistance — pest detection, yield forecasting, smart irrigation — comes later, opt-in. We don't promise dates. We're probably not going to solve all your personal issues, your physical insecurites, or your relationships, but I'll say I wouldn't rule it out. We do promise a small, reasonable platform that grows with your farm.
       </p>
 
       <h2>Who we're built for</h2>
       <div class="built-for-grid">
         <div class="built-for-card">
           <strong>Small farms (under 50 acres)</strong>
-          <span>Replace the spreadsheet, the paper notebook, and the half-dozen disconnected apps you patch together every week.</span>
+          <span>Replace the spreadsheet, the paper notebook, and the half-dozen disconnected apps you patch together every week. Again, we probably won't solve any psychological issues or physical infirmities you have, but we certainly won't make them worse.</span>
         </div>
         <div class="built-for-card">
           <strong>Diversified operations</strong>
@@ -114,7 +126,7 @@
       </div>
 
       <div class="cta-strip">
-        Want to be part of it? <a class="download" href="/index.html#waitlist">Join the waitlist</a>
+        Want to be part of it? <a class="download" href="/signup.html">Start your 30-day free trial</a>
       </div>
     </div>
   </main>
@@ -128,6 +140,7 @@
           <li><a href="https://shop.growinggreen.app">Market App</a></li>
           <li><a href="https://team.growinggreen.app">Worker App</a></li>
           <li><a href="/index.html#pricing">Pricing</a></li>
+          <li><a href="/signup.html">Sign Up</a></li>
         </ul>
       </div>
       <div class="site-footer-col">
