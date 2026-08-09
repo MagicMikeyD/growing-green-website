@@ -85,13 +85,24 @@
 
   <!-- Intro video overlay: plays once per visitor, muted, with Skip.
        Ends on the exact frame used as the site background, so the fade-out
-       is seamless. Auto-skipped for prefers-reduced-motion, Save-Data,
-       autoplay-blocked, or slow-loading situations. -->
+       is seamless. Plays on phones too (founder decision 2026-08-08 —
+       parity with manasoftworks.com), letterboxed on portrait so the
+       baked-in wordmark is never cover-cropped. Auto-skipped only for
+       prefers-reduced-motion and Save-Data; when a browser blocks muted
+       autoplay (e.g. iPhone Low Power Mode) a Play/Skip card appears
+       instead of silently bailing. -->
   <div id="gg-intro" hidden>
     <video id="gg-intro-video" muted playsinline preload="auto" poster="/assets/intro-poster.jpg" aria-hidden="true">
       <source src="/assets/intro.mp4" type="video/mp4">
     </video>
     <button id="gg-intro-skip" type="button">Skip intro ›</button>
+    <div id="gg-intro-start" hidden role="dialog" aria-label="Play the intro?">
+      <div class="gg-intro-start-card">
+        <p>Your browser paused the intro.</p>
+        <button id="gg-intro-play" type="button">Play intro ›</button>
+        <button id="gg-intro-start-skip" type="button">Skip to site</button>
+      </div>
+    </div>
   </div>
 
   <nav class="site-nav" aria-label="Main">
@@ -641,8 +652,11 @@
 
   <script>
     // Intro video: play once per visitor, then hand off to the identical
-    // freeze-frame background. Skipped automatically for reduced-motion,
-    // Save-Data, blocked autoplay, or a slow-loading video.
+    // freeze-frame background. Phones play it too (founder decision
+    // 2026-08-08); only reduced-motion and Save-Data skip outright. If the
+    // browser blocks muted autoplay (iPhone Low Power Mode, some data
+    // savers) we show a Play/Skip card instead of silently bailing —
+    // same pattern as manasoftworks.com.
     (function() {
       var KEY = 'gg_intro_seen_v1';
       var ov = document.getElementById('gg-intro');
@@ -650,16 +664,13 @@
       try {
         var conn = navigator.connection || {};
         var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        // Portrait phones skip straight to the freeze-frame background:
-        // the square video would cover-crop the wordmark, and skipping
-        // saves ~2.7MB of mobile data. (Doesn't set the seen-flag, so a
-        // desktop visit still gets the intro.)
-        var portraitPhone = window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 820px)').matches;
-        if (localStorage.getItem(KEY) || reduced || conn.saveData || portraitPhone) { ov.remove(); return; }
+        if (localStorage.getItem(KEY) || reduced || conn.saveData) { ov.remove(); return; }
       } catch (e) { ov.remove(); return; }
 
       var vid = document.getElementById('gg-intro-video');
+      var startCard = document.getElementById('gg-intro-start');
       var done = false;
+      var waitingOnTap = false;
       function finish() {
         if (done) return;
         done = true;
@@ -668,18 +679,44 @@
         ov.classList.add('gg-intro-out');
         setTimeout(function() { ov.remove(); }, 950);
       }
+      // Timers are flag-guarded rather than cancelled: while the Play/Skip
+      // card is up, stall/backstop timers from an earlier play attempt
+      // must not dismiss the overlay mid-choice.
+      function armTimers() {
+        // Not started within 3s -> don't hold the page hostage.
+        setTimeout(function() {
+          if (done || waitingOnTap) return;
+          if (vid.paused || vid.readyState < 2) finish();
+        }, 3000);
+        // Absolute backstop for a playing video.
+        setTimeout(function() {
+          if (done || waitingOnTap) return;
+          finish();
+        }, 14000);
+      }
+      function showStartCard() {
+        if (done) return;
+        waitingOnTap = true;
+        startCard.hidden = false;
+      }
 
       ov.hidden = false;
       document.documentElement.classList.add('gg-intro-lock');
       document.getElementById('gg-intro-skip').addEventListener('click', finish);
+      document.getElementById('gg-intro-start-skip').addEventListener('click', finish);
+      document.getElementById('gg-intro-play').addEventListener('click', function() {
+        waitingOnTap = false;
+        startCard.hidden = true;
+        var p2 = vid.play();
+        // Blocked even on a user gesture -> nothing more we can do.
+        if (p2 && p2.catch) { p2.catch(finish); }
+        armTimers();
+      });
       vid.addEventListener('ended', finish);
       vid.addEventListener('error', finish);
       var p = vid.play();
-      if (p && p.catch) { p.catch(finish); }
-      // If it hasn't actually started playing within 3s, don't hold the page hostage.
-      setTimeout(function() { if (vid.paused || vid.readyState < 2) finish(); }, 3000);
-      // Absolute backstop.
-      setTimeout(finish, 14000);
+      if (p && p.catch) { p.catch(showStartCard); }
+      armTimers();
     })();
   </script>
 

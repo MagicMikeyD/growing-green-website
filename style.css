@@ -1443,6 +1443,58 @@ html.gg-intro-lock body { overflow: hidden; }
 
 #gg-intro-skip:hover { background: rgba(0, 0, 0, 0.7); }
 
+/* Blocked-autoplay card (iPhone Low Power Mode etc.) — shown instead of
+   silently skipping the intro; see the intro script in index.html. */
+#gg-intro-start {
+  position: absolute;
+  inset: 0;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+#gg-intro-start[hidden] { display: none; }
+.gg-intro-start-card {
+  background: rgba(8, 18, 8, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  padding: 24px 28px;
+  text-align: center;
+  color: #fff;
+  max-width: 320px;
+  margin: 0 20px;
+}
+.gg-intro-start-card p { margin: 0 0 16px; font-size: 1em; }
+#gg-intro-play {
+  display: block;
+  width: 100%;
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 22px;
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+}
+#gg-intro-play:hover { background: #1b5e20; }
+#gg-intro-start-skip {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 22px;
+  padding: 11px 20px;
+  font-family: inherit;
+  font-size: 0.95em;
+  cursor: pointer;
+}
+#gg-intro-start-skip:hover { background: rgba(255, 255, 255, 0.12); }
+
 /* Freeze-frame page background as a fixed layer (works on iOS, where
    background-attachment: fixed does not), plus a readability scrim. */
 body.gg-cinema { background-color: #0c1c0c; }
@@ -1719,12 +1771,16 @@ body.gg-cinema .section-divider {
    Cinematic responsive + motion preferences
    ========================================================= */
 /* Portrait phones: swap to a blur-extended portrait plate so the baked-in
-   wordmark isn't cover-cropped. The intro script also skips the video here
-   (instant load, no mobile-data spend) — see index.html. */
+   wordmark isn't cover-cropped, and letterbox the intro video (contain)
+   for the same reason. The intro PLAYS here since 2026-08-08 (founder
+   decision — parity with manasoftworks.com); the letterbox bars land on
+   the overlay's near-black background and read as cinematic. */
 @media (orientation: portrait) and (max-width: 820px) {
   body.gg-cinema::before {
     background-image: url('/assets/hero-freeze-portrait.jpg');
   }
+
+  #gg-intro video { object-fit: contain; }
 }
 
 @media (max-width: 768px) {
