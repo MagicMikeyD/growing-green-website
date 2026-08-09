@@ -53,32 +53,41 @@
        the signup card must not depend on classes that only exist in a later
        style.css revision. Later rules here override style.css where equal. */
     .su-wrap { max-width: 520px; margin: 40px auto 24px; padding: 0 16px; }
-    .su-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,.10);
+    .su-card { background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
                overflow: hidden; }
     .su-card-head { background: #2e7d32; color: #fff; text-align: center;
                     padding: 22px 20px; font-size: 21px; font-weight: 700; }
-    .su-card-body { padding: 26px 24px; }
+    .su-card-body { padding: 26px 24px; color: #333; text-align: left; }
     .su-tabs { display: flex; border-bottom: 2px solid #e8f5e9; margin-bottom: 20px; }
     .su-tab { flex: 1; padding: 10px 0; background: none; border: none; font-size: 15px;
+              font-family: inherit;
               font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
     .su-tab.active { color: #2e7d32; border-bottom-color: #2e7d32; }
     .su-field { margin-bottom: 14px; }
     .su-field label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; }
-    .su-field input { width: 100%; padding: 12px; font-size: 15px; border: 1px solid #ccc;
-                      border-radius: 8px; background: #fff; }
+    label.su-field { display: block; font-size: 13px; color: #555; }
+    .su-field input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc;
+                      border-radius: 8px; background: #fff; box-sizing: border-box;
+                      font-family: inherit; }
     .su-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px;
+              font-family: inherit;
               font-weight: 700; color: #fff; background: #2e7d32; cursor: pointer; }
     .su-btn:disabled { background: #a5d6a7; cursor: not-allowed; }
     .su-btn-secondary { width: 100%; padding: 13px; border: 2px solid #2e7d32; border-radius: 8px;
                         font-size: 15px; font-weight: 700; color: #2e7d32; background: #fff;
+                        font-family: inherit;
                         cursor: pointer; margin-top: 10px; }
+    .su-btn:hover:not(:disabled) { background: #1b5e20; }
+    .su-btn-secondary:hover { background: #e8f5e9; }
     .su-link-btn { background: none; border: none; color: #2e7d32; font-size: 14px;
+                   font-family: inherit;
                    cursor: pointer; text-decoration: underline; padding: 0; }
     .su-error { color: #c62828; font-size: 13px; min-height: 18px; margin: 8px 0; }
     .su-otp-input { width: 200px; margin: 6px auto 0; display: block; padding: 12px; font-size: 26px;
                     font-weight: 700; letter-spacing: 8px; text-align: center; border: 1px solid #ccc;
                     border-radius: 8px; font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace; }
     .su-note { font-size: 12px; color: #888; text-align: center; margin-top: 14px; line-height: 1.5; }
+    .su-note a { color: #2e7d32; }
     .su-price { text-align: center; margin: 0 0 6px; font-size: 26px; font-weight: 800; color: #1b5e20; }
     .su-price small { font-size: 15px; font-weight: 600; color: #666; }
     .su-trial { text-align: center; color: #2e7d32; font-weight: 600; font-size: 15px; margin: 0 0 16px; }
@@ -96,29 +105,33 @@
     .su-staging-banner { background: #e65100; color: #fff; text-align: center; font-weight: 700;
                          padding: 8px; font-size: 14px; letter-spacing: 1px; }
     .su-signout { text-align: center; margin-top: 14px; }
-    .su-identity { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    .su-identity { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
                    background: #f1f8e9; border: 1px solid #c8e6c9; border-radius: 8px;
                    padding: 10px 14px; margin: 0 0 16px; font-size: 14px; color: #1b5e20; }
-    .su-identity strong { word-break: break-all; }
+    .su-identity .su-link-btn { flex-shrink: 0; white-space: nowrap; }
+    .su-identity strong { overflow-wrap: anywhere; }
     [hidden] { display: none !important; }
 
     /* Comparison table (self-contained copy of the revamp's table styles —
        push 1 must not depend on the uncommitted style.css revision). */
     .su-compare { max-width: 900px; margin: 8px auto 48px; padding: 0 16px; }
-    .su-compare h2 { text-align: center; font-size: 24px; color: #1b5e20; margin: 0 0 6px; }
-    .su-compare > p { text-align: center; color: #666; font-size: 14px; margin: 0 0 18px; }
-    .su-compare-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .su-compare-table { border-collapse: collapse; width: 100%; min-width: 680px;
-                        background: #fff; border-radius: 12px; overflow: hidden;
+    .su-compare h2 { text-align: center; font-size: 24px; color: #fff;
+                     text-shadow: 0 2px 10px rgba(0,0,0,0.65), 0 0 2px rgba(0,0,0,0.8); margin: 0 0 6px; }
+    .su-compare > p { text-align: center; color: rgba(255,255,255,.92);
+                      text-shadow: 0 1px 6px rgba(0,0,0,.7); font-size: 14px; margin: 0 0 18px; }
+    .su-compare-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 4px 14px; }
+    .su-compare-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 680px;
+                        background: #fff; color: #333; border-radius: 12px; overflow: hidden;
                         box-shadow: 0 2px 10px rgba(0,0,0,.08); font-size: 14px; }
     .su-compare-table th, .su-compare-table td { padding: 11px 12px; text-align: left;
                         border-bottom: 1px solid #eee; vertical-align: top; }
     .su-compare-table thead th { background: #f1f8e9; color: #1b5e20; font-size: 14px; }
     .su-compare-table .gg-col { background: #e8f5e9; font-weight: 600; color: #1b5e20; }
-    .su-compare-note { font-size: 12px; color: #999; text-align: center; margin-top: 10px; line-height: 1.5; }
+    .su-compare-note { font-size: 12px; color: rgba(255,255,255,.92); text-shadow: 0 1px 6px rgba(0,0,0,.7);
+                       text-align: center; margin-top: 10px; line-height: 1.5; }
   </style>
 </head>
-<body>
+<body class="gg-cinema">
   <div class="su-staging-banner" id="su-staging" hidden>STAGING — TEST MODE, NO REAL CHARGES</div>
 
   <nav class="site-nav" aria-label="Main">
@@ -139,7 +152,7 @@
     </div>
   </nav>
 
-  <section class="page-hero">
+  <section class="page-hero page-hero-cinema">
     <h1>Start your farm's free trial</h1>
     <p>$24.99/month after a 30-day free trial. Cancel anytime.</p>
   </section>
@@ -364,7 +377,6 @@
         <ul>
           <li><a href="/faq.html">Help &amp; FAQ</a></li>
           <li><a href="/support.html">Contact Support</a></li>
-          <li><a href="#">Status</a></li>
         </ul>
       </div>
     </div>

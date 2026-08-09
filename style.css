@@ -89,8 +89,8 @@ body {
   border-radius: 6px;
   color: white;
   font-size: 1.4em;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   line-height: 1;
   padding: 0;
@@ -178,12 +178,12 @@ header p {
   font-size: 1.2em;
 }
 
-.hero-cta {
+header .hero-cta {
   display: inline-block;
   margin-top: 28px;
 }
 
-.cta-large {
+.download.cta-large {
   padding: 16px 32px;
   font-size: 1.15em;
   border-radius: 30px;
@@ -199,10 +199,15 @@ header p {
   padding: 14px 20px;
   font-size: 0.95em;
   letter-spacing: 0.3px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 8px;
+  row-gap: 4px;
 }
 
 .trust-strip span {
-  margin: 0 8px;
+  margin: 0;
 }
 
 /* =========================================================
@@ -213,6 +218,7 @@ header p {
   background-color: white; /* White background for contrast */
   padding: 20px;
   margin: 20px 0;
+  scroll-margin-top: 80px; /* Offset sticky nav when anchored */
 }
 
 .products-header h2,
@@ -455,7 +461,8 @@ header p {
 
 .comparison-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate; /* Prevents Safari sticky-column border artifacts */
+  border-spacing: 0;
   margin-top: 20px;
   font-size: 0.95em;
   background-color: white;
@@ -473,6 +480,20 @@ header p {
   background-color: #f4faf4;
   color: #1b5e20;
   font-weight: 700;
+}
+
+/* Sticky first column while the table scrolls horizontally on phones */
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: white;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.06);
+}
+
+.comparison-table thead th:first-child {
+  background-color: #f4faf4;
 }
 
 .comparison-table th.gg-col,
@@ -500,6 +521,7 @@ header p {
   padding: 40px 20px;
   margin: 20px 0;
   color: black; /* Dark text for readability */
+  scroll-margin-top: 80px; /* Offset sticky nav when anchored */
 }
 
 .pricing-container {
@@ -662,7 +684,7 @@ header p {
 details.faq-item {
   background-color: #f9f9f9;
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 4px 20px;
   margin-bottom: 12px;
   border-left: 4px solid #228B22;
 }
@@ -678,7 +700,7 @@ details.faq-item summary {
   font-size: 1.05em;
   list-style: none;
   position: relative;
-  padding-right: 24px;
+  padding: 12px 24px 12px 0;
 }
 
 details.faq-item summary::-webkit-details-marker { display: none; }
@@ -1253,7 +1275,7 @@ details.faq-item ul {
 }
 
 .site-footer-col li {
-  margin-bottom: 8px;
+  margin-bottom: 2px;
 }
 
 .site-footer-col a {
@@ -1261,6 +1283,8 @@ details.faq-item ul {
   text-decoration: none;
   font-size: 0.95em;
   opacity: 0.9;
+  display: inline-block;
+  padding: 6px 0;
 }
 
 .site-footer-col a:hover {
@@ -1288,6 +1312,11 @@ details.faq-item ul {
 @media (max-width: 480px) {
   .site-footer-inner {
     grid-template-columns: 1fr;
+  }
+
+  .download.cta-large {
+    padding: 14px 22px;
+    font-size: 1.05em;
   }
 }
 
@@ -1363,6 +1392,10 @@ details.faq-item ul {
     flex-direction: column;
     align-items: center;
     text-align: center;
+  }
+
+  .founder-card .founder-bio p {
+    text-align: left;
   }
 
   .legal-doc {
@@ -1758,6 +1791,18 @@ body.gg-cinema .section-divider {
 
 .comparison-scroll .comparison-table { min-width: 880px; }
 
+/* Swipe hint above the phone-scrolled comparison table */
+.comparison-swipe-hint { display: none; }
+
+@media (max-width: 768px) {
+  .comparison-swipe-hint {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin: 8px 0 4px;
+  }
+}
+
 /* About page founder photo */
 .founder-photo-img {
   width: 220px;
@@ -1785,7 +1830,7 @@ body.gg-cinema .section-divider {
 
 @media (max-width: 768px) {
   header.cinema-hero {
-    min-height: 74vh;
+    min-height: 86vh;
     padding: 0 20px 44px;
   }
 

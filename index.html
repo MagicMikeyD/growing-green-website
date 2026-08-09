@@ -250,7 +250,7 @@
           <p>Purpose-built workflows for trays, substrates, and succession cycles — not row-crop features squeezed sideways.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon" aria-hidden="true">🫙</div>
+          <div class="feature-icon" aria-hidden="true">🍯</div>
           <h3>Value-added products</h3>
           <p>Turn harvests into jams, soaps, and salsas with production logs, input costs rolled up, and listings ready to sell.</p>
         </div>
@@ -412,6 +412,7 @@
     <div class="comparison-container">
       <h2>Why Growing Green vs the alternatives</h2>
       <p>An honest look at the tools farmers most often compare us to — the management platforms (Farmbrite, Tend) and the sell-your-harvest platforms (Local Line, Barn2Door). Growing Green is the only one that's both.</p>
+      <p class="comparison-swipe-hint" aria-hidden="true">Swipe to compare →</p>
       <div class="comparison-scroll">
         <table class="comparison-table">
           <thead>
@@ -641,7 +642,6 @@
         <ul>
           <li><a href="/faq.html">Help &amp; FAQ</a></li>
           <li><a href="/support.html">Contact Support</a></li>
-          <li><a href="#">Status</a></li>
         </ul>
       </div>
     </div>
@@ -729,6 +729,12 @@
       toggle.addEventListener('click', function() {
         var open = links.classList.toggle('open');
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      links.addEventListener('click', function(e) {
+        if (e.target.closest('a')) {
+          links.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
       });
     })();
   </script>
