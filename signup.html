@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up — Growing Green</title>
-  <meta name="description" content="Start your 30-day free trial of Growing Green — the all-in-one farm management platform with your own marketplace storefront. $24.99/month, cancel anytime.">
+  <meta name="description" content="Start your 30-day free trial of Growing Green — the all-in-one farm management platform with your own marketplace storefront. $24.99/month or $199/year, cancel anytime.">
   <link rel="canonical" href="https://growinggreen.app/signup.html">
 
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
@@ -90,6 +90,13 @@
     .su-note a { color: #2e7d32; }
     .su-price { text-align: center; margin: 0 0 6px; font-size: 26px; font-weight: 800; color: #1b5e20; }
     .su-price small { font-size: 15px; font-weight: 600; color: #666; }
+    .su-plan-toggle { display: flex; gap: 8px; margin: 0 0 14px; }
+    .su-plan { flex: 1; padding: 10px 8px; border: 2px solid #e0e0e0; border-radius: 10px;
+      background: #fff; cursor: pointer; text-align: center; font: inherit; }
+    .su-plan strong { display: block; font-size: 18px; color: #1b5e20; }
+    .su-plan strong small { font-size: 12px; font-weight: 600; color: #666; }
+    .su-plan span { display: block; font-size: 11.5px; color: #666; margin-top: 2px; }
+    .su-plan.selected { border-color: #2e7d32; background: #f1f8f2; }
     .su-trial { text-align: center; color: #2e7d32; font-weight: 600; font-size: 15px; margin: 0 0 16px; }
     .su-feature-list { list-style: none; padding: 0; margin: 0 0 18px; }
     .su-feature-list li { padding: 5px 0 5px 26px; position: relative; font-size: 14px; color: #444; }
@@ -154,7 +161,7 @@
 
   <section class="page-hero page-hero-cinema">
     <h1>Start your farm's free trial</h1>
-    <p>$24.99/month after a 30-day free trial. Cancel anytime.</p>
+    <p>$24.99/month after a 30-day free trial — or $199/year, a year for the price of eight months. Cancel anytime.</p>
   </section>
 
   <div class="su-wrap">
@@ -226,7 +233,19 @@
             <span>Subscribing as <strong id="sub-email"></strong></span>
             <button type="button" class="su-link-btn" id="sub-signout">Not you? Switch</button>
           </div>
-          <p class="su-price">$24.99<small>/month</small></p>
+          <!-- Plan toggle (A1, 2026-08-18): monthly stays canonical; annual is
+               $199/yr — a year for the price of eight months. -->
+          <div class="su-plan-toggle" role="radiogroup" aria-label="Billing plan">
+            <button type="button" class="su-plan selected" id="plan-monthly" aria-pressed="true">
+              <strong>$24.99<small>/mo</small></strong>
+              <span>Pause anytime for the season</span>
+            </button>
+            <button type="button" class="su-plan" id="plan-annual" aria-pressed="false">
+              <strong>$199<small>/yr</small></strong>
+              <span>A year for the price of eight months</span>
+            </button>
+          </div>
+          <p class="su-price" id="sub-price">$24.99<small>/month</small></p>
           <p class="su-trial" id="sub-trial" hidden>30-day free trial — your card isn't charged until it ends</p>
           <ul class="su-feature-list">
             <li>Complete farm management — crops, livestock, fields &amp; beds, inventory, orders</li>
@@ -261,7 +280,9 @@
             Google&nbsp;Play.</p>
           <!-- Store badges: restore with real URLs when the apps are live (same hidden block as index.html). -->
           <div id="store-badges" hidden></div>
+          <button class="su-btn" id="resume-btn" type="button" hidden>Resume my subscription</button>
           <button class="su-btn-secondary" id="manage-btn" type="button">Manage subscription</button>
+          <button class="su-btn-secondary" id="pause-btn" type="button" hidden>Pause for the season</button>
           <div class="su-error" id="manage-error" role="alert"></div>
           <p class="su-note">Next step: open the Farmer App, create your farm, and set up your
             storefront. Your team and customers use the free Worker and Market apps.</p>
@@ -289,8 +310,8 @@
         </thead>
         <tbody>
           <tr>
-            <td>Monthly price</td>
-            <td class="gg-col">$24.99 — everything included</td>
+            <td>Price</td>
+            <td class="gg-col">$24.99/mo or $199/yr — everything included</td>
             <td>$59–$109 (Complete)</td>
             <td>$30–$75</td>
             <td>$99–$399</td>
@@ -341,8 +362,9 @@
     </div>
     <p class="su-compare-note">Competitor pricing as of August 2026, from each vendor's public
       pricing page — check their sites for current figures. Card processing fees apply on every
-      platform, including ours; our 4% royalty applies to card sales only, is capped at
-      $400/month, and never touches cash sales.</p>
+      platform, including ours; our 4% royalty applies only to marketplace and wholesale sales,
+      is capped at $400/month, and in-person sales are royalty-free — processing passed through
+      at cost, cash always free.</p>
   </section>
 
   <footer class="site-footer">
@@ -476,7 +498,7 @@
       var email = (session.user && session.user.email) || '';
       var userId = session.user.id;
       var subQ = sb.from('subscriptions')
-        .select('status, trial_end, created_at')
+        .select('status, trial_end, created_at, billing_interval')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(1);
@@ -501,6 +523,10 @@
         if (profErr) console.error('[signup] profiles read failed', profErr);
         if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
           renderSuccess(email, sub);
+        } else if (sub && sub.status === 'paused') {
+          // Seasonal pause (F7.1): a LIVE subscription with billing stopped.
+          // The remedy is Resume — never a second subscription.
+          renderPaused(email, sub);
         } else if (sub && (sub.status === 'past_due' || sub.status === 'unpaid' || sub.status === 'incomplete')) {
           // Still-live subscription with a collection problem: the remedy is
           // the billing portal (update the card), NEVER a second subscription.
@@ -618,6 +644,30 @@
 
     // ── Subscribe card (fresh + lapsed) ─────────────────────────────────────
     var stripe = null, cardEl = null, currentEmail = '', trialEligible = false;
+    // A1 (2026-08-18): monthly | annual. The server picks the Stripe Price
+    // from this; anything else defaults to monthly server-side.
+    var selectedInterval = 'monthly';
+
+    function subBtnLabel() {
+      if (trialEligible) return 'Start my 30-day free trial';
+      return selectedInterval === 'annual' ? 'Start my year — $199' : 'Start my subscription';
+    }
+
+    function setPlan(interval) {
+      selectedInterval = interval;
+      var monthly = interval === 'monthly';
+      $('plan-monthly').classList.toggle('selected', monthly);
+      $('plan-annual').classList.toggle('selected', !monthly);
+      $('plan-monthly').setAttribute('aria-pressed', monthly ? 'true' : 'false');
+      $('plan-annual').setAttribute('aria-pressed', monthly ? 'false' : 'true');
+      $('sub-price').innerHTML = monthly
+        ? '$24.99<small>/month</small>'
+        : '$199<small>/year — a year for the price of eight months</small>';
+      var btn = $('sub-btn');
+      if (!btn.disabled && btn.textContent !== 'Processing…') btn.textContent = subBtnLabel();
+    }
+    $('plan-monthly').addEventListener('click', function () { setPlan('monthly'); });
+    $('plan-annual').addEventListener('click', function () { setPlan('annual'); });
 
     function ensureStripe() {
       if (stripe) return Promise.resolve();
@@ -640,8 +690,9 @@
       $('sub-email').textContent = email;
       $('sub-heading').textContent = lapsed ? 'Reactivate your subscription' : 'Activate your subscription';
       $('sub-trial').hidden = !trialEligible;
+      setPlan(selectedInterval);
       var btn = $('sub-btn');
-      btn.textContent = trialEligible ? 'Start my 30-day free trial' : 'Start my subscription';
+      btn.textContent = subBtnLabel();
       // Disabled until the payment form is actually ready — a click before the
       // Stripe config resolves would otherwise be a silent no-op — and re-enabled
       // on EVERY paint (a previous success in this session left it disabled).
@@ -666,7 +717,7 @@
       var restore = function (msg) {
         if (msg) $('sub-error').textContent = msg;
         btn.disabled = false;
-        btn.textContent = trialEligible ? 'Start my 30-day free trial' : 'Start my subscription';
+        btn.textContent = subBtnLabel();
       };
 
       sb.functions.invoke('create-subscription', { body: { trial: trialEligible ? 30 : 0 } })
@@ -682,7 +733,11 @@
             // Server re-clamps the trial from profiles.trial_used — this value
             // is a request, not a decision (trust boundary unchanged).
             return sb.functions.invoke('complete-subscription', {
-              body: { client_secret: clientSecret, trial: trialEligible ? 30 : 0 }
+              body: {
+                client_secret: clientSecret,
+                trial: trialEligible ? 30 : 0,
+                billing_interval: selectedInterval
+              }
             }).then(function (compRes) {
               if (compRes.error) {
                 console.error('[signup] complete-subscription', compRes.error);
@@ -697,7 +752,11 @@
               }
               // Best-effort invoice email — never blocks the success path.
               sb.functions.invoke('send-subscription-invoice', {
-                body: { email: currentEmail, trial_days: trialEligible ? 30 : 0 }
+                body: {
+                  email: currentEmail,
+                  trial_days: trialEligible ? 30 : 0,
+                  billing_interval: selectedInterval
+                }
               }).catch(function () {});
               route();
             });
@@ -714,17 +773,68 @@
       $('success-email').textContent = email;
       $('success-emoji').textContent = '🌱';
       $('success-heading').textContent = "You're in!";
+      var annual = sub.billing_interval === 'annual';
       var line;
       if (sub.status === 'trialing' && sub.trial_end) {
         var end = new Date(sub.trial_end);
         line = 'Free trial active — your card is first charged on ' +
           end.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '.';
       } else {
-        line = 'Subscription active — $24.99/month.';
+        line = annual ? 'Subscription active — $199/year.' : 'Subscription active — $24.99/month.';
       }
       $('success-status').textContent = line;
+      // Seasonal pause is a MONTHLY feature (annual has nothing to pause —
+      // addendum A1.5). billing_interval NULL = pre-A1 row = monthly.
+      $('pause-btn').hidden = annual;
+      $('resume-btn').hidden = true;
       show('state-success');
     }
+
+    // ── Paused card (F7.1) ─────────────────────────────────────────────────
+    function renderPaused(email, sub) {
+      $('success-email').textContent = email;
+      $('success-emoji').textContent = '🍂';
+      $('success-heading').textContent = 'Paused for the season';
+      $('success-status').textContent =
+        'Billing is stopped and your data is safe. Your marketplace storefront ' +
+        'and in-person card sales are off until you resume — records, history, ' +
+        'and planning stay available in the app.';
+      $('pause-btn').hidden = true;
+      $('resume-btn').hidden = false;
+      show('state-success');
+    }
+
+    function pauseAction(action) {
+      var pauseBtn = $('pause-btn'), resumeBtn = $('resume-btn');
+      pauseBtn.disabled = true; resumeBtn.disabled = true;
+      $('manage-error').textContent = '';
+      sb.functions.invoke('subscription-pause', { body: { action: action } })
+        .then(function (r) {
+          pauseBtn.disabled = false; resumeBtn.disabled = false;
+          if (r.error) {
+            console.error('[signup] subscription-pause', r.error);
+            $('manage-error').textContent = action === 'pause'
+              ? 'Couldn’t pause your subscription. Please try again.'
+              : 'Couldn’t resume your subscription. Please try again.';
+            return;
+          }
+          route();
+        })
+        .catch(function (e) {
+          console.error('[signup] subscription-pause', e);
+          pauseBtn.disabled = false; resumeBtn.disabled = false;
+          $('manage-error').textContent = 'Something went wrong. Please try again.';
+        });
+    }
+
+    $('pause-btn').addEventListener('click', function () {
+      if (window.confirm(
+        'Pause your subscription for the season?\n\nBilling stops and your data ' +
+        'is kept. Your marketplace storefront and in-person card sales turn off ' +
+        'until you resume — you can resume any time from this page.'
+      )) pauseAction('pause');
+    });
+    $('resume-btn').addEventListener('click', function () { pauseAction('resume'); });
 
     // A live subscription with a collection problem (past_due/unpaid/incomplete):
     // the fix is a new card in the billing portal — Stripe then retries and the
@@ -733,6 +843,8 @@
     function renderBillingIssue(email, sub) {
       $('success-email').textContent = email;
       $('success-emoji').textContent = '💳';
+      $('pause-btn').hidden = true;
+      $('resume-btn').hidden = true;
       $('success-heading').textContent = 'Fix your billing';
       $('success-status').textContent =
         'We couldn’t collect your latest payment (status: ' + sub.status + '). ' +

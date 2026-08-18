@@ -55,17 +55,30 @@
     "name": "Growing Green Farmer App",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web, iOS, Android",
-    "offers": {
-      "@type": "Offer",
-      "price": "24.99",
-      "priceCurrency": "USD",
-      "priceSpecification": {
-        "@type": "UnitPriceSpecification",
+    "offers": [
+      {
+        "@type": "Offer",
         "price": "24.99",
         "priceCurrency": "USD",
-        "billingDuration": "P1M"
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "24.99",
+          "priceCurrency": "USD",
+          "billingDuration": "P1M"
+        }
+      },
+      {
+        "@type": "Offer",
+        "price": "199",
+        "priceCurrency": "USD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "199",
+          "priceCurrency": "USD",
+          "billingDuration": "P1Y"
+        }
       }
-    },
+    ],
     "publisher": {
       "@type": "Organization",
       "name": "Mana Softworks LLC"
@@ -357,7 +370,7 @@
       <div class="selling-points-grid">
         <div class="selling-point">
           <strong>One platform, one price.</strong>
-          <span>$24.99/month covers management, your storefront, and the worker app. No per-user fees, no feature tiers, no setup fee, no contract.</span>
+          <span>$24.99/month (or $199/yr — a year for the price of eight months) covers management, your storefront, and the worker app. No per-user fees, no feature tiers, no setup fee, no contract.</span>
         </div>
         <div class="selling-point">
           <strong>Offline is the default, not a promise.</strong>
@@ -365,7 +378,7 @@
         </div>
         <div class="selling-point">
           <strong>We only win when you win.</strong>
-          <span>4% on card sales through your storefront, capped at $400/month. Cash sales are always free — tracked for your books, never charged.</span>
+          <span>Free where you tap, 4% where we run your store. Selling in person? No royalty — cash is free, and card sales pay only processing at cost. Marketplace and wholesale sales carry 4%, capped at $400/month.</span>
         </div>
         <div class="selling-point">
           <strong>No app-store tax in your price.</strong>
@@ -428,7 +441,7 @@
           <tbody>
             <tr>
               <td>Monthly price</td>
-              <td class="gg-col">$24.99 — everything included</td>
+              <td class="gg-col">$24.99 (or $199/yr) — everything included</td>
               <td>$59–$109 (Complete)</td>
               <td>$30–$75</td>
               <td>$99–$399</td>
@@ -500,7 +513,7 @@
             </tr>
             <tr>
               <td>Platform commission</td>
-              <td class="gg-col">4% on card sales, capped at $400/mo — cash is free</td>
+              <td class="gg-col">4% on marketplace &amp; wholesale, capped at $400/mo — in-person is royalty-free</td>
               <td>None</td>
               <td>None</td>
               <td>None</td>
@@ -509,7 +522,50 @@
           </tbody>
         </table>
       </div>
-      <p class="comparison-note">Public pricing and published features as of August 2026 — check each vendor's site for current plans; most offer discounts. Standard card processing (~2.9% + 30¢) applies on every platform, including ours. Growing Green's 4% royalty applies only to card sales through your storefront and stops entirely at $400/month.</p>
+      <p class="comparison-note">Public pricing and published features as of August 2026 — check each vendor's site for current plans; most offer discounts. Standard card processing applies on every platform; ours is passed through at cost (2.95% + 15¢ Tap to Pay, 3.15% + 30¢ typed card). Growing Green's 4% royalty applies only to marketplace and wholesale sales through your storefront and stops entirely at $400/month — in-person sales carry no royalty at all.</p>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="comparison-section">
+    <div class="comparison-container">
+      <h2>What it costs to sell your harvest</h2>
+      <p>If you're weighing the sell-your-harvest platforms head to head, here's the dollars-and-cents version.</p>
+      <p class="comparison-swipe-hint" aria-hidden="true">Swipe to compare →</p>
+      <div class="comparison-scroll">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="gg-col">Growing Green</th>
+              <th>Barn2Door</th>
+              <th>Local Line</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Software price</td>
+              <td class="gg-col">$24.99/mo, or $199/yr — a year for the price of eight months</td>
+              <td>$99–$299/mo billed annually ($119–$379 month-to-month)</td>
+              <td>$99–$399/mo ($950/yr Core ≈ $79/mo)</td>
+            </tr>
+            <tr>
+              <td>One-time setup fee</td>
+              <td class="gg-col">None</td>
+              <td>$399–$599</td>
+              <td>None</td>
+            </tr>
+            <tr>
+              <td>Fee on sales</td>
+              <td class="gg-col">Free at your stand — no royalty on in-person sales. 4% where we run your store, capped at $400/mo</td>
+              <td>~3% service fee + processing</td>
+              <td>No commission</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="comparison-note">Public pricing and published features as of August 2026 — check each vendor's site for current plans; most offer discounts.</p>
     </div>
   </section>
 
@@ -527,8 +583,8 @@
       <div class="pricing-tiers">
         <div class="tier">
           <h3>Farmer App (Admin)</h3>
-          <p class="price">$24.99/month</p>
-          <p>Includes a 30-day free trial. Plus 4% royalty on Stripe-processed marketplace sales, capped at $400/month per farm. Cash sales are not subject to the royalty.</p>
+          <p class="price">$24.99/month or $199/yr</p>
+          <p>Includes a 30-day free trial. The annual plan is a year for the price of eight months. 4% royalty on marketplace and wholesale sales, capped at $400/month per farm. In-person sales carry no royalty — free at your stand.</p>
           <a href="/signup.html" class="download">Start your free trial</a>
         </div>
         <div class="tier">
@@ -561,7 +617,7 @@
       <h2>Quick answers</h2>
       <details class="faq-item">
         <summary>How much does it cost?</summary>
-        <p>$24.99/month for the Farmer App after the trial. The Market and Worker apps are free. Marketplace sales processed through Stripe carry a 4% royalty, capped at $400/month per farm. Cash sales are tracked but free.</p>
+        <p>$24.99/month, or $199/year — a year for the price of eight months — for the Farmer App after the trial. The Market and Worker apps are free. Marketplace and wholesale sales carry a 4% royalty, capped at $400/month per farm. In-person sales carry no royalty — cash is free, and card sales pay only processing at cost.</p>
       </details>
       <details class="faq-item">
         <summary>What if I lose internet in the field?</summary>
