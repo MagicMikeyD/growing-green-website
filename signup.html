@@ -242,7 +242,7 @@
             </button>
             <button type="button" class="su-plan" id="plan-annual" aria-pressed="false">
               <strong>$199<small>/yr</small></strong>
-              <span>A year for the price of eight months</span>
+              <span>Eight months' price &mdash; off-season included</span>
             </button>
           </div>
           <p class="su-price" id="sub-price">$24.99<small>/month</small></p>
@@ -283,6 +283,13 @@
           <button class="su-btn" id="resume-btn" type="button" hidden>Resume my subscription</button>
           <button class="su-btn-secondary" id="manage-btn" type="button">Manage subscription</button>
           <button class="su-btn-secondary" id="pause-btn" type="button" hidden>Pause for the season</button>
+          <!-- Annual has no pause (addendum A1.5): the off-season is already priced in.
+               Shown in place of the pause button so its absence is explained, not just felt. -->
+          <p class="su-note" id="annual-note" hidden>Your annual plan already covers the off-season &mdash;
+            that&rsquo;s why it&rsquo;s $199 and not $300. There&rsquo;s nothing to pause.</p>
+          <!-- Cancel-at-period-end ('canceling'): a PAID user until the period closes. -->
+          <p class="su-note" id="canceling-note" hidden>Your subscription is set to end at the close of
+            the current billing period. You keep full access until then.</p>
           <div class="su-error" id="manage-error" role="alert"></div>
           <p class="su-note">Next step: open the Farmer App, create your farm, and set up your
             storefront. Your team and customers use the free Worker and Market apps.</p>
@@ -521,7 +528,9 @@
         // the server re-clamps from the real value anyway.
         var trialUsed = profErr ? true : !!(results[1].data && results[1].data.trial_used);
         if (profErr) console.error('[signup] profiles read failed', profErr);
-        if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
+        if (sub && (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'canceling')) {
+          // 'canceling' = cancel-at-period-end (webhook): a PAID user with
+          // full access until the period closes — never the pay-again card.
           renderSuccess(email, sub);
         } else if (sub && sub.status === 'paused') {
           // Seasonal pause (F7.1): a LIVE subscription with billing stopped.
@@ -783,9 +792,13 @@
         line = annual ? 'Subscription active — $199/year.' : 'Subscription active — $24.99/month.';
       }
       $('success-status').textContent = line;
+      var canceling = sub.status === 'canceling';
       // Seasonal pause is a MONTHLY feature (annual has nothing to pause —
       // addendum A1.5). billing_interval NULL = pre-A1 row = monthly.
-      $('pause-btn').hidden = annual;
+      // A canceling sub has nothing to pause either — its note takes the slot.
+      $('pause-btn').hidden = annual || canceling;
+      $('annual-note').hidden = !annual || canceling;
+      $('canceling-note').hidden = !canceling;
       $('resume-btn').hidden = true;
       show('state-success');
     }
@@ -800,6 +813,8 @@
         'and in-person card sales are off until you resume — records, history, ' +
         'and planning stay available in the app.';
       $('pause-btn').hidden = true;
+      $('annual-note').hidden = true;
+      $('canceling-note').hidden = true;
       $('resume-btn').hidden = false;
       show('state-success');
     }
@@ -813,9 +828,33 @@
           pauseBtn.disabled = false; resumeBtn.disabled = false;
           if (r.error) {
             console.error('[signup] subscription-pause', r.error);
-            $('manage-error').textContent = action === 'pause'
+            var generic = action === 'pause'
               ? 'Couldn’t pause your subscription. Please try again.'
               : 'Couldn’t resume your subscription. Please try again.';
+            var showRefusal = function (code) {
+              // Policy refusals from the server — retrying can never work,
+              // so say WHY instead of the generic try-again line.
+              if (code === 'trial_cannot_pause') {
+                $('manage-error').textContent =
+                  'Your free trial can’t be paused — pausing becomes available ' +
+                  'once billing starts after the trial.';
+              } else if (code === 'annual_plans_cannot_pause') {
+                $('manage-error').textContent =
+                  'Annual plans don’t pause — the off-season is already priced in.';
+              } else {
+                $('manage-error').textContent = generic;
+              }
+            };
+            // FunctionsHttpError carries the fetch Response as .context; the
+            // body must be read async. Network errors have no usable context.
+            var ctx = r.error.context;
+            if (ctx && typeof ctx.json === 'function') {
+              ctx.json()
+                .then(function (body) { showRefusal(body && body.error); })
+                .catch(function () { $('manage-error').textContent = generic; });
+            } else {
+              $('manage-error').textContent = generic;
+            }
             return;
           }
           route();
@@ -845,6 +884,8 @@
       $('success-emoji').textContent = '💳';
       $('pause-btn').hidden = true;
       $('resume-btn').hidden = true;
+      $('annual-note').hidden = true;
+      $('canceling-note').hidden = true;
       $('success-heading').textContent = 'Fix your billing';
       $('success-status').textContent =
         'We couldn’t collect your latest payment (status: ' + sub.status + '). ' +
