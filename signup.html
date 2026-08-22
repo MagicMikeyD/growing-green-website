@@ -731,6 +731,12 @@
 
       sb.functions.invoke('create-subscription', { body: { trial: trialEligible ? 30 : 0 } })
         .then(function (res) {
+          // Founding Farm (2026-08-22): the server refuses to create billing
+          // state for Ring 0 — explain instead of the generic failure loop.
+          if (res.data && res.data.founding_farm_no_billing === true) {
+            restore('You’re a Founding Farm — this farm never pays the subscription. Nothing to set up here; just open the Farmer App.');
+            return;
+          }
           if (res.error || !res.data || !res.data.client_secret) {
             throw new Error('create-subscription failed');
           }
