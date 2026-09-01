@@ -39,6 +39,8 @@
     th { padding: 6px 0; text-align: left; color: #2e7d32; font-weight: 600; border-bottom: 2px solid #2e7d32; }
     td { padding: 6px 0; border-bottom: 1px solid #e8f5e9; }
     .total { text-align: right; font-size: 22px; font-weight: 700; color: #2e7d32; margin: 12px 0 24px; }
+    .breakdown { margin: 12px 0 0; font-size: 14px; color: #444; }
+    .breakdown-row { display: flex; justify-content: space-between; padding: 2px 0; }
     label { font-size: 13px; color: #666; display: block; margin-bottom: 8px; }
     #card-element { border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin-bottom: 16px; background: #fff; }
     #card-errors { color: #c62828; font-size: 13px; margin-bottom: 12px; min-height: 20px; }
@@ -68,6 +70,10 @@
         <thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th></tr></thead>
         <tbody id="items"></tbody>
       </table>
+      <div class="breakdown" id="breakdown" hidden>
+        <div class="breakdown-row"><span>Subtotal</span><span id="subtotal"></span></div>
+        <div class="breakdown-row"><span>Service fee</span><span id="service-fee"></span></div>
+      </div>
       <div class="total" id="total"></div>
       <label for="card-element">Card details</label>
       <div id="card-element"></div>
@@ -179,6 +185,16 @@
       // containing markup is displayed, never executed.
       $('farm-line').textContent = 'Order from ' + (d.farmName || 'your farm');
       $('order-ref').textContent = '#' + (d.orderRef || '');
+      // Fee transparency (2026-08-31): the item rows sum to the product
+      // subtotal while the total includes the service fee — without the
+      // breakdown the math visibly didn't add up. serviceFeeCents absent
+      // (older fn) or 0 (wholesale / legacy orders) keeps the old look.
+      var fee = d.serviceFeeCents || 0;
+      if (fee > 0) {
+        $('subtotal').textContent = money(Math.max(0, (d.totalCents || 0) - fee));
+        $('service-fee').textContent = money(fee);
+        $('breakdown').hidden = false;
+      }
       $('total').textContent = money(d.totalCents);
       $('note').textContent =
         'Your card will not be charged now. It is charged when ' +
